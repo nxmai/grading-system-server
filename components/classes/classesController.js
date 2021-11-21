@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import Class from "./classModel.js";
-import InviteClassLink from "./inviteClassLinkModel";
-import InviteUserClass from "./inviteUserClassModel";
-import ClassUser from './classUserModel';
+import InviteClassLink from "./inviteClassLinkModel.js";
+import InviteUserClass from "./inviteUserClassModel.js";
+import ClassUser from './classUserModel.js';
 
 export const getClasses = async (req, res) => {
   try {

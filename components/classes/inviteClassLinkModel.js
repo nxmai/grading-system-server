@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import InviteUserClassSchema from './inviteUserClassModel';
+import InviteUserClassSchema from './inviteUserClassModel.js';
 
 const InviteClassLinkSchema = new mongoose.Schema({
     class: {

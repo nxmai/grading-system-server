@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { userClassRollEnum } from './userClassRollEnum';
+import { userClassRollEnum } from './userClassRollEnum.js';
 
 const ClassUserSchema = new mongoose.Schema({
     class: {
