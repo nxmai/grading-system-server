@@ -1,8 +1,8 @@
-GET http://localhost:5000/auth/access
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxOTljMjEzMzhlMzM1NmRiZWQ4NDkxMiIsIm5hbWUiOiJSYWlubiBNb29yZSIsImlhdCI6MTYzNzQ2NzMxOX0.aLd1bJ2OnMFjMjybOHMsUfZbLg9Y-mrz0EmCsAYiTaI
+GET http://localhost:5000/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxOTljMjEzMzhlMzM1NmRiZWQ4NDkxMiIsIm5hbWUiOiJSYWlubiBNb29yZSIsImlhdCI6MTYzNzQ4MjM3N30.5o930STd03EJ5IN_MhymPmG63suFqsk8cnF7PxW-kBE
 
 ###
-POST http://localhost:5000/auth/login/
+POST http://localhost:5000/auth/login
 Content-Type: application/json
 
 {
@@ -17,7 +17,7 @@ Content-Type: application/json
 {
     "firstName": "Rainn",
     "lastName": "Moore",
-    "email": "testmail07@abc.com",
+    "email": "testmail08@abc.com",
     "password": "rainee"
 }
 
