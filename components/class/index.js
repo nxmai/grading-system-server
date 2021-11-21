@@ -9,7 +9,7 @@ import {
     approveInvite, 
     createInviteSendMail, 
     deleteInvite 
-} from './classesController.js';
+} from './classController.js';
 
 // one class has ONLY one link invite
 router.post('approve/:inviteLink', approveInvite) // approve this usser

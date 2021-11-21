@@ -1,29 +1,50 @@
 import mongoose from 'mongoose';
+import { userRollEnum } from './userRollEnum.js';
 
-const UserSchema = mongoose.Schema({
+const UserSchema = new mongoose.Schema({
     firstName: {
         type: String,
-        require: true,
     },
     lastName: {
         type: String,
-        require: true,
+    },
+    studentCardID: {
+        type: String,
+    },
+    photoUrl: {
+        type: String,
+    },
+    role: {
+        type: String,
+        enum: userRollEnum,
+        default: userRollEnum[0],
+    },
+    active: {
+        type: Boolean,
+        default: true,
     },
     email: {
         type: String,
-        require: true,
+        required: true,
     },
     password: {
         type: String,
-    },
-    picture: {
-        type: String,
-    },
-    created: {
-        type: Date,
-        default: Date.now(),
     }
+}, {
+    timestamps: true,
+    toObject: { virtuals: true },
 })
 
-const User = mongoose.model('user', UserSchema)
-export default User
+UserSchema.virtual('inviteClasses', {
+    ref: 'InviteUserClass',
+    foreignField: 'user',
+    localField: '_id',
+    match: {
+        inviteClasses: {
+            isActive: true,
+        }
+    }
+  });
+
+const User = mongoose.model('User', UserSchema);
+export default User;

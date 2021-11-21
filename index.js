@@ -17,7 +17,7 @@ app.use(cors());
 import connectDB from "./data/configData.js";
 connectDB();
 
-import classesRouter from "./components/classes/index.js";
+import classesRouter from "./components/class/index.js";
 import authRouter from './components/auth/index.js'
 
 app.use("/", classesRouter);

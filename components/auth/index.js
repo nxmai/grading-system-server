@@ -46,7 +46,6 @@ router.post("/login", (req, res) => {
                 return res.redirect('/register', { email })
             }
 
-            // console.log(bcrypt.compareSync(password, user[0].password))
             if (!bcrypt.compareSync(password, user[0].password)) {
                 return res.status(401).json({ message: "Wrong password" })
             }
@@ -55,9 +54,6 @@ router.post("/login", (req, res) => {
                 process.env.PRIVATE_KEY,
             );
             return res.json({ accessToken })
-            // bcrypt.compareSync(password, user[0].password).then(result =>{
-                
-            // })
         })
         .catch(error => res.status(404).json(error))
 });
