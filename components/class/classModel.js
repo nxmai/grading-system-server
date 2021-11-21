@@ -6,10 +6,21 @@ const ClassSchema = mongoose.Schema({
     trim: true,
     required: true,
   },
-  created: {
-    type: Date,
-    default: Date.now(),
-  }
+  subject: {
+    type: String,
+    trim: true,
+  },
+  coverUrl: {
+    type: String,
+    trim: true,
+  },
+  description: {
+    type: String,
+    trim: true,
+    required: true,
+  },
+}, {
+  timestamps: true,
 })
 
 const Class = mongoose.model('Class', ClassSchema);

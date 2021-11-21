@@ -3,7 +3,10 @@ const router = express.Router();
 
 import {
     getClasses, 
+    getClassById,
     createClass, 
+    getTeacherOfClass,
+    getStudentOfClass,
     createInviteLink, 
     updateInviteLinkByClassID, 
     approveInvite, 
@@ -22,5 +25,8 @@ router.delete('/:classId/invite-link/:inviteLinkId/invite/:inviteUserClassId', d
 
 router.get('/', getClasses);
 router.post('/', createClass);
+router.get('/:classId', getClassById);
+router.get('/:classId/people/teacher', getTeacherOfClass);
+router.get('/:classId/people/student', getStudentOfClass);
 
 export default router;

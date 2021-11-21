@@ -1,18 +1,24 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import data from './dummy.js';
+import {classes, user, classUser} from './dummy.js';
 import connectDB from './configData.js';
-import Class from '../components/classes/classModel.js';
-
-const classData = data;
+import Class from '../components/class/classModel.js';
+import User from "../components/user/userModel.js";
+import ClassUser from "../components/class/classUserModel.js";
 
 connectDB();
 
 const importData = async() => {
     try {
-        await Class.deleteMany();
-        await Class.insertMany(classData);
+        // await Class.deleteMany();
+        // await Class.insertMany(classes);
+
+        // await User.deleteMany();
+        // await User.insertMany(user);
+
+        await ClassUser.deleteMany();
+        await ClassUser.insertMany(classUser);
 
         console.log('Data import success');
         process.exit();

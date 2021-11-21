@@ -1,7 +1,7 @@
 import Class from "./classModel.js";
 import InviteClassLink from "./inviteClassLinkModel.js";
 import InviteUserClass from "./inviteUserClassModel.js";
-import ClassUser from './classUserModel.js';
+import ClassUser from "./classUserModel.js";
 
 export const getClasses = async (req, res) => {
   try {
@@ -13,23 +13,71 @@ export const getClasses = async (req, res) => {
   }
 };
 
-export const createClass = async (req, res) => {
-  try{
-    const newClass = new Class({...req.body});
-    await newClass.save();
+export const getClassById = async (req, res) => {
+  try {
+    const classId = req.params.classId;
+    const classData = await Class.findById(classId);
 
-    res.status(201).json(newClass);
-  } catch{
+    res.status(200).json(classData);
+  } catch (error) {
     res.status(404).json({ message: error.message });
   }
-}
+};
+
+export const createClass = async (req, res) => {
+  try {
+    const newClass = new Class({ ...req.body });
+    await newClass.save();
+    // console.log(newClass);
+    res.status(201).json(newClass);
+  } catch {
+    console.log(error);
+    res.status(404).json({ message: error.message });
+  }
+};
+
+export const getTeacherOfClass = async (req, res) => {
+  try {
+    const classId = req.params.classId;
+    const classUsers = await ClassUser.find({ class: classId }).populate({
+      path: "user",
+      // select: 'firstName lastName email'
+    });
+
+    const result = classUsers
+      .filter((classUser) => classUser.role === "teacher")
+      .map((classUser) => classUser.user);
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
+};
+
+export const getStudentOfClass = async (req, res) => {
+  try {
+    const classId = req.params.classId;
+    const classUsers = await ClassUser.find({ class: classId }).populate({
+      path: "user",
+      // select: 'firstName lastName email'
+    });
+
+    const result = classUsers
+      .filter((classUser) => classUser.role === "student")
+      .map((classUser) => classUser.user);
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
+};
 
 // ----------------------
-//      INVITE LINK      
+//      INVITE LINK
 // ----------------------
 
 export const createInviteLink = async (req, res) => {
-  try{
+  try {
     const classId = req.param.classId;
     const newLink = new InviteClassLink({
       class: classId,
@@ -38,33 +86,33 @@ export const createInviteLink = async (req, res) => {
     await newLink.save();
 
     res.status(201).json(newLink);
-  } catch{
+  } catch {
     res.status(404).json({ message: error.message });
   }
-}
+};
 
 export const updateInviteLinkByClassID = async (req, res) => {
-  try{
+  try {
     const classId = req.param.classId;
     const oneLink = await InviteClassLink.findOne({ class: classId });
-    if (!oneLink) throw Error('not found this invite link for this class');
+    if (!oneLink) throw Error("not found this invite link for this class");
     const isActive = req.body.isActive;
     oneLink.isActive = isActive;
 
     await oneLink.save();
 
     res.status(201).json(oneLink);
-  } catch{
+  } catch {
     res.status(404).json({ message: error.message });
   }
-}
+};
 
 export const approveInvite = async (req, res) => {
-  try{
+  try {
     const inviteLink = req.param.inviteLink;
     const oneLink = await InviteClassLink.findOne({ linkText: inviteLink });
-    if (!oneLink) throw Error('not found this invite link for this class');
-    if (!oneLink.isActive) throw Error('this link not active');
+    if (!oneLink) throw Error("not found this invite link for this class");
+    if (!oneLink.isActive) throw Error("this link not active");
 
     // get user info
     const user = req.user;
@@ -74,18 +122,18 @@ export const approveInvite = async (req, res) => {
       link: oneLink._id,
     });
 
-    let inviteRoll = inviteWithRole? inviteWithRole : 'student';
+    let inviteRoll = inviteWithRole ? inviteWithRole : "student";
 
     // add user to class
     const result = new ClassUser({
       class: oneLink.class,
       user: user._id,
       role: inviteRoll,
-    })
+    });
     await oneLink.save();
 
     // TODO:
-    // check if user had join in class, then update role if 
+    // check if user had join in class, then update role if
 
     // delete user invite if
     if (inviteWithRole) {
@@ -96,13 +144,13 @@ export const approveInvite = async (req, res) => {
     }
 
     return res.status(201).json(oneLink);
-  } catch{
+  } catch {
     res.status(404).json({ message: error.message });
   }
-}
+};
 
 export const createInvite = async (req, res) => {
-  try{
+  try {
     const classId = req.param.classId;
     const newLink = new InviteClassLink({
       class: classId,
@@ -111,21 +159,21 @@ export const createInvite = async (req, res) => {
     await newLink.save();
 
     res.status(201).json(newLink);
-  } catch{
+  } catch {
     res.status(404).json({ message: error.message });
   }
-}
+};
 
 export const createInviteSendMail = async (req, res) => {
-  try{
+  try {
     const inviteLinkId = req.param.InviteLinkId;
     // check link active
     const inviteLink = await InviteUserClass.findById(inviteLinkId);
-    if (!inviteLink) throw Error('no found this link')
-    if (!inviteLink.isActive) throw Error('this link not active');
+    if (!inviteLink) throw Error("no found this link");
+    if (!inviteLink.isActive) throw Error("this link not active");
 
     // get dto
-    const {userId, role} = req.body;
+    const { userId, role } = req.body;
 
     const newInviteWithRole = new InviteUserClass({
       link: inviteLink._id,
@@ -137,18 +185,18 @@ export const createInviteSendMail = async (req, res) => {
     // TODO send email
 
     return res.status(201).json(newInviteWithRole);
-  } catch{
+  } catch {
     return res.status(404).json({ message: error.message });
   }
-}
+};
 
 export const deleteInvite = async (req, res) => {
-  try{
+  try {
     const inviteUserClassId = req.param.inviteUserClassId;
     await InviteUserClass.findByIdAndDelete(inviteUserClassId);
 
     return res.status(201);
-  } catch{
+  } catch {
     return res.status(404).json({ message: error.message });
   }
-}
+};

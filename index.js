@@ -17,11 +17,12 @@ app.use(cors());
 import connectDB from "./data/configData.js";
 connectDB();
 
-import classesRouter from "./components/class/index.js";
+import classRouter from "./components/class/index.js";
 import authRouter from './components/auth/index.js'
 
-app.use("/", classesRouter);
+app.use("/", classRouter);
 app.use('/auth', authRouter)
+// app.use("/", classRouter);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {

@@ -1,29 +1,54 @@
-const classes = [
+export const classes = [
   {
-    className: "[CQ] PTUDWNC - 18_3",
-    classSubject: "Web Advanced",
-    classTeacher: "Nguyen Huy Khanh",
+    name: "[CQ] PTUDWNC - 18_3",
+    subject: "Web Advanced",
+    description: "The web development advanced subject from FIT - HCMUS",
   },{
-    className: "[CQ] PTUDWNC - 18_3",
-    classSubject: "Web Advanced",
-    classTeacher: "Nguyen Huy Khanh",
+    name: "[CQ] PTUDWNC - 18_3",
+    subject: "Web Advanced",
+    description: "The web development advanced subject from FIT - HCMUS",
   },{
-    className: "[CQ] PTUDWNC - 18_3",
-    classSubject: "Web Advanced",
-    classTeacher: "Nguyen Huy Khanh",
+    name: "[CQ] PTUDWNC - 18_3",
+    subject: "Web Advanced",
+    description: "The web development advanced subject from FIT - HCMUS",
   },{
-    className: "[CQ] PTUDWNC - 18_3",
-    classSubject: "Web Advanced",
-    classTeacher: "Nguyen Huy Khanh",
+    name: "[CQ] PTUDWNC - 18_3",
+    subject: "Web Advanced",
+    description: "The web development advanced subject from FIT - HCMUS",
   },{
-    className: "[CQ] PTUDWNC - 18_3",
-    classSubject: "Web Advanced",
-    classTeacher: "Nguyen Huy Khanh",
+    name: "[CQ] PTUDWNC - 18_3",
+    subject: "Web Advanced",
+    description: "The web development advanced subject from FIT - HCMUS",
   },{
-    className: "[CQ] PTUDWNC - 18_3",
-    classSubject: "Web Advanced",
-    classTeacher: "Nguyen Huy Khanh",
+    name: "[CQ] PTUDWNC - 18_3",
+    subject: "Web Advanced",
+    description: "The web development advanced subject from FIT - HCMUS",
   },
+];
+
+export const user = [
+  {
+    firstName: "Lestrange",
+    lastName: "Bellatrix",
+    email: "bellatrix@gmail.com",
+  },
+  {
+    firstName: "Lestrange",
+    lastName: "Thomas",
+    email: "thomas@gmail.com",
+  }
 ]
 
-export default classes;
+export const classUser = [
+  {
+    class: "6199fb67f6ab37ea8b05f321",
+    user: "619a1010453a4a97f10b3b1d",
+    role: "student",
+  },{
+    class: "6199fb67f6ab37ea8b05f321",
+    user: "619a1010453a4a97f10b3b1e",
+    role: "teacher",
+  }
+]
+
+// export default classes;
