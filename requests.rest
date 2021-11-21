@@ -1,0 +1,25 @@
+GET http://localhost:5000/auth/access
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxOTljMjEzMzhlMzM1NmRiZWQ4NDkxMiIsIm5hbWUiOiJSYWlubiBNb29yZSIsImlhdCI6MTYzNzQ2NzMxOX0.aLd1bJ2OnMFjMjybOHMsUfZbLg9Y-mrz0EmCsAYiTaI
+
+###
+POST http://localhost:5000/auth/login/
+Content-Type: application/json
+
+{
+    "email": "testmail07@abc.com",
+    "password": "rainee"
+}
+
+###
+POST http://localhost:5000/auth/register/
+Content-Type: application/json
+
+{
+    "firstName": "Rainn",
+    "lastName": "Moore",
+    "email": "testmail07@abc.com",
+    "password": "rainee"
+}
+
+###
+GET http://localhost:5000/auth/users

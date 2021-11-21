@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import Class from "./classModel.js";
 
 export const getClasses = async (req, res) => {
