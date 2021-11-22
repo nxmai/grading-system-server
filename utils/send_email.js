@@ -1,6 +1,6 @@
-const nodemailer = require('nodemailer');
+import nodemailer from "nodemailer";
 
-const sendEmail = async (options) => {
+export const sendEmail = async (options) => {
     // 1 Create a transporter
 
     const smtpOptions = {
@@ -17,6 +17,7 @@ const sendEmail = async (options) => {
         // 2 Define the email options
         const mailOptions =
         {
+            from: process.env.GMAIL_USERNAME,
             to: `${options.name} <${options.email}>`,
             subject: options.subject,
             text: options.message,
@@ -28,5 +29,3 @@ const sendEmail = async (options) => {
         console.log(err,)
     }
 };
-
-module.exports = sendEmail;

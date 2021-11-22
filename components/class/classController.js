@@ -2,6 +2,8 @@ import Class from "./classModel.js";
 import InviteClassLink from "./inviteClassLinkModel.js";
 import InviteUserClass from "./inviteUserClassModel.js";
 import ClassUser from "./classUserModel.js";
+import UserModel from "../user/userModel.js";
+import { sendEmail } from "../../utils/send_email.js";
 
 export const getClasses = async (req, res) => {
     try {
@@ -85,24 +87,38 @@ export const getStudentOfClass = async (req, res) => {
 //      INVITE LINK
 // ----------------------
 
+export const getInviteLinkByClassID = async (req, res) => {
+    try {
+        const classId = req.params.classId;
+        const oneLink = await InviteClassLink.findOne({ class: classId });
+        if (!oneLink) throw Error("not found this invite link for this class");
+        if (!oneLink.isActive) throw Error("this link is not active");
+
+        res.status(201).json(oneLink);
+    } catch (error){
+        res.status(404).json({ message: error.message });
+    }
+};
+
 export const createInviteLink = async (req, res) => {
     try {
-        const classId = req.param.classId;
+        const classId = req.params.classId;
         const newLink = new InviteClassLink({
             class: classId,
             linkText: classId,
         });
         await newLink.save();
+        console.log(newLink);
 
-        res.status(201).json(newLink);
-    } catch {
+        return res.status(201).json(newLink);
+    } catch (error){
         res.status(404).json({ message: error.message });
     }
 };
 
 export const updateInviteLinkByClassID = async (req, res) => {
     try {
-        const classId = req.param.classId;
+        const classId = req.params.classId;
         const oneLink = await InviteClassLink.findOne({ class: classId });
         if (!oneLink) throw Error("not found this invite link for this class");
         const isActive = req.body.isActive;
@@ -175,26 +191,36 @@ export const createInvite = async (req, res) => {
 
 export const createInviteSendMail = async (req, res) => {
     try {
-        const inviteLinkId = req.param.InviteLinkId;
+        const inviteLinkId = req.params.inviteLinkId;
+        console.log(inviteLinkId);
         // check link active
-        const inviteLink = await InviteUserClass.findById(inviteLinkId);
+        const inviteLink = await InviteClassLink.findOne({linkText: inviteLinkId});
         if (!inviteLink) throw Error("no found this link");
         if (!inviteLink.isActive) throw Error("this link not active");
 
         // get dto
-        const { userId, role } = req.body;
+        const { email, role } = req.body;
+        const user = await UserModel.findOne({email});
 
-        const newInviteWithRole = new InviteUserClass({
-            link: inviteLink._id,
-            user: userId,
-            role: role,
-        });
-        await newInviteWithRole.save();
+        if (user) {
+            const newInviteWithRole = new InviteUserClass({
+                link: inviteLink._id,
+                user: user._id,
+                role: role,
+            });
+            await newInviteWithRole.save();
+        }
 
         // TODO send email
+        await sendEmail({
+            email: email,
+            name: "Nhut",
+            subject: "asdf",
+            message: "asf dsd fg"
+        })
 
-        return res.status(201).json(newInviteWithRole);
-    } catch {
+        return res.status(201).json({message: "success"});
+    } catch (error){
         return res.status(404).json({ message: error.message });
     }
 };

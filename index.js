@@ -2,6 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
+import morgan from "morgan";
 
 const app = express();
 dotenv.config();
@@ -15,6 +16,15 @@ connectDB();
 
 import classesRouter from "./components/class/index.js";
 import authRouter, { verifyToken } from "./components/auth/index.js";
+
+// middleware to show log on console
+if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev'));
+  } else {
+    app.use(morgan('combined', {
+      skip(req, res) { return res.statusCode < 400; }, // only log error responses
+    }));
+  }
 
 app.use("/", verifyToken, classesRouter);
 app.use("/auth", authRouter);

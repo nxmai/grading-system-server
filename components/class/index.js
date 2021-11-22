@@ -7,6 +7,7 @@ import {
     createClass, 
     getTeacherOfClass,
     getStudentOfClass,
+    getInviteLinkByClassID,
     createInviteLink, 
     updateInviteLinkByClassID, 
     approveInvite, 
@@ -17,6 +18,7 @@ import {
 // one class has ONLY one link invite
 router.post('approve/:inviteLink', approveInvite) // approve this usser
 
+router.get('/:classId/invite-link', getInviteLinkByClassID); // get link text invite user of class
 router.post('/:classId/invite-link', createInviteLink); // create link invite
 router.put('/:classId/invite-link', updateInviteLinkByClassID); // update to deactive link
 

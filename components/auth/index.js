@@ -24,7 +24,7 @@ router.post('/register', (req, res) => {
                     return res.render('register', { error })
                 }
                 const accessToken = jwt.sign(
-                    { id: user._id, name: user.firstName + " " + user.lastName },
+                    { id: user.id, name: user.firstName + " " + user.lastName },
                     process.env.PRIVATE_KEY,
                 );
                 // res.json({ accessToken })
