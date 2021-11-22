@@ -20,7 +20,7 @@ const ClassUserSchema = new mongoose.Schema({
     toObject: { virtuals: true },
 });
 
-ClassUserSchema.index({ link: 1, user: 1 }, { unique: true });
+// ClassUserSchema.index({ link: 1, user: 1 }, { unique: true });
 
 const ClassUser = mongoose.model('ClassUser', ClassUserSchema);
 export default ClassUser;

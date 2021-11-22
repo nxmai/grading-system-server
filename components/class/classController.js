@@ -4,72 +4,81 @@ import InviteUserClass from "./inviteUserClassModel.js";
 import ClassUser from "./classUserModel.js";
 
 export const getClasses = async (req, res) => {
-  try {
-    const total = await Class.find();
+    try {
+        const userId = req.user._id;
+        const classByUserId = await ClassUser.find({ user: userId }).populate({
+            path: "class",
+            select: 'name subject description',
+        });
+        const total = classByUserId.map((item) => item.class);
 
-    res.status(200).json(total);
-  } catch (error) {
-    res.status(404).json({ message: error.message });
-  }
+        res.status(200).json(total);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
 };
 
 export const getClassById = async (req, res) => {
-  try {
-    const classId = req.params.classId;
-    const classData = await Class.findById(classId);
-
-    res.status(200).json(classData);
-  } catch (error) {
-    res.status(404).json({ message: error.message });
-  }
+    try {
+        const classId = req.params.classId;
+        const classData = await Class.findById(classId);
+        
+        res.status(200).json(classData);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
 };
 
 export const createClass = async (req, res) => {
-  try {
-    const newClass = new Class({ ...req.body });
-    await newClass.save();
-    // console.log(newClass);
-    res.status(201).json(newClass);
-  } catch {
-    console.log(error);
-    res.status(404).json({ message: error.message });
-  }
+    try {
+        const userId = req.user._id;
+        const newClass = new Class({ ...req.body });
+        await newClass.save();
+
+        const newClassUser = new ClassUser({class: newClass._id, user: userId, role: "teacher"});
+        await newClassUser.save();
+
+        res.status(201).json(newClassUser);
+    } catch (error) {
+        console.log(error);
+        res.status(404).json({ message: error.message });
+    }
 };
 
 export const getTeacherOfClass = async (req, res) => {
-  try {
-    const classId = req.params.classId;
-    const classUsers = await ClassUser.find({ class: classId }).populate({
-      path: "user",
-      // select: 'firstName lastName email'
-    });
+    try {
+        const classId = req.params.classId;
+        const classUsers = await ClassUser.find({ class: classId }).populate({
+            path: "user",
+            // select: 'firstName lastName email'
+        });
 
-    const result = classUsers
-      .filter((classUser) => classUser.role === "teacher")
-      .map((classUser) => classUser.user);
+        const result = classUsers
+            .filter((classUser) => classUser.role === "teacher")
+            .map((classUser) => classUser.user);
 
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(404).json({ message: error.message });
-  }
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
 };
 
 export const getStudentOfClass = async (req, res) => {
-  try {
-    const classId = req.params.classId;
-    const classUsers = await ClassUser.find({ class: classId }).populate({
-      path: "user",
-      // select: 'firstName lastName email'
-    });
+    try {
+        const classId = req.params.classId;
+        const classUsers = await ClassUser.find({ class: classId }).populate({
+            path: "user",
+            // select: 'firstName lastName email'
+        });
 
-    const result = classUsers
-      .filter((classUser) => classUser.role === "student")
-      .map((classUser) => classUser.user);
+        const result = classUsers
+            .filter((classUser) => classUser.role === "student")
+            .map((classUser) => classUser.user);
 
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(404).json({ message: error.message });
-  }
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
 };
 
 // ----------------------
@@ -77,126 +86,126 @@ export const getStudentOfClass = async (req, res) => {
 // ----------------------
 
 export const createInviteLink = async (req, res) => {
-  try {
-    const classId = req.param.classId;
-    const newLink = new InviteClassLink({
-      class: classId,
-      linkText: classId,
-    });
-    await newLink.save();
+    try {
+        const classId = req.param.classId;
+        const newLink = new InviteClassLink({
+            class: classId,
+            linkText: classId,
+        });
+        await newLink.save();
 
-    res.status(201).json(newLink);
-  } catch {
-    res.status(404).json({ message: error.message });
-  }
+        res.status(201).json(newLink);
+    } catch {
+        res.status(404).json({ message: error.message });
+    }
 };
 
 export const updateInviteLinkByClassID = async (req, res) => {
-  try {
-    const classId = req.param.classId;
-    const oneLink = await InviteClassLink.findOne({ class: classId });
-    if (!oneLink) throw Error("not found this invite link for this class");
-    const isActive = req.body.isActive;
-    oneLink.isActive = isActive;
+    try {
+        const classId = req.param.classId;
+        const oneLink = await InviteClassLink.findOne({ class: classId });
+        if (!oneLink) throw Error("not found this invite link for this class");
+        const isActive = req.body.isActive;
+        oneLink.isActive = isActive;
 
-    await oneLink.save();
+        await oneLink.save();
 
-    res.status(201).json(oneLink);
-  } catch {
-    res.status(404).json({ message: error.message });
-  }
+        res.status(201).json(oneLink);
+    } catch {
+        res.status(404).json({ message: error.message });
+    }
 };
 
 export const approveInvite = async (req, res) => {
-  try {
-    const inviteLink = req.param.inviteLink;
-    const oneLink = await InviteClassLink.findOne({ linkText: inviteLink });
-    if (!oneLink) throw Error("not found this invite link for this class");
-    if (!oneLink.isActive) throw Error("this link not active");
+    try {
+        const inviteLink = req.param.inviteLink;
+        const oneLink = await InviteClassLink.findOne({ linkText: inviteLink });
+        if (!oneLink) throw Error("not found this invite link for this class");
+        if (!oneLink.isActive) throw Error("this link not active");
 
-    // get user info
-    const user = req.user;
-    // find user in invite user class
-    const inviteWithRole = await InviteUserClass.findOne({
-      user: user._id,
-      link: oneLink._id,
-    });
+        // get user info
+        const user = req.user;
+        // find user in invite user class
+        const inviteWithRole = await InviteUserClass.findOne({
+            user: user._id,
+            link: oneLink._id,
+        });
 
-    let inviteRoll = inviteWithRole ? inviteWithRole : "student";
+        let inviteRoll = inviteWithRole ? inviteWithRole : "student";
 
-    // add user to class
-    const result = new ClassUser({
-      class: oneLink.class,
-      user: user._id,
-      role: inviteRoll,
-    });
-    await oneLink.save();
+        // add user to class
+        const result = new ClassUser({
+            class: oneLink.class,
+            user: user._id,
+            role: inviteRoll,
+        });
+        await oneLink.save();
 
-    // TODO:
-    // check if user had join in class, then update role if
+        // TODO:
+        // check if user had join in class, then update role if
 
-    // delete user invite if
-    if (inviteWithRole) {
-      await InviteUserClass.deleteOne({
-        user: user._id,
-        link: oneLink._id,
-      });
+        // delete user invite if
+        if (inviteWithRole) {
+            await InviteUserClass.deleteOne({
+                user: user._id,
+                link: oneLink._id,
+            });
+        }
+
+        return res.status(201).json(oneLink);
+    } catch {
+        res.status(404).json({ message: error.message });
     }
-
-    return res.status(201).json(oneLink);
-  } catch {
-    res.status(404).json({ message: error.message });
-  }
 };
 
 export const createInvite = async (req, res) => {
-  try {
-    const classId = req.param.classId;
-    const newLink = new InviteClassLink({
-      class: classId,
-      linkText: classId,
-    });
-    await newLink.save();
+    try {
+        const classId = req.param.classId;
+        const newLink = new InviteClassLink({
+            class: classId,
+            linkText: classId,
+        });
+        await newLink.save();
 
-    res.status(201).json(newLink);
-  } catch {
-    res.status(404).json({ message: error.message });
-  }
+        res.status(201).json(newLink);
+    } catch {
+        res.status(404).json({ message: error.message });
+    }
 };
 
 export const createInviteSendMail = async (req, res) => {
-  try {
-    const inviteLinkId = req.param.InviteLinkId;
-    // check link active
-    const inviteLink = await InviteUserClass.findById(inviteLinkId);
-    if (!inviteLink) throw Error("no found this link");
-    if (!inviteLink.isActive) throw Error("this link not active");
+    try {
+        const inviteLinkId = req.param.InviteLinkId;
+        // check link active
+        const inviteLink = await InviteUserClass.findById(inviteLinkId);
+        if (!inviteLink) throw Error("no found this link");
+        if (!inviteLink.isActive) throw Error("this link not active");
 
-    // get dto
-    const { userId, role } = req.body;
+        // get dto
+        const { userId, role } = req.body;
 
-    const newInviteWithRole = new InviteUserClass({
-      link: inviteLink._id,
-      user: userId,
-      role: role,
-    });
-    await newInviteWithRole.save();
+        const newInviteWithRole = new InviteUserClass({
+            link: inviteLink._id,
+            user: userId,
+            role: role,
+        });
+        await newInviteWithRole.save();
 
-    // TODO send email
+        // TODO send email
 
-    return res.status(201).json(newInviteWithRole);
-  } catch {
-    return res.status(404).json({ message: error.message });
-  }
+        return res.status(201).json(newInviteWithRole);
+    } catch {
+        return res.status(404).json({ message: error.message });
+    }
 };
 
 export const deleteInvite = async (req, res) => {
-  try {
-    const inviteUserClassId = req.param.inviteUserClassId;
-    await InviteUserClass.findByIdAndDelete(inviteUserClassId);
+    try {
+        const inviteUserClassId = req.param.inviteUserClassId;
+        await InviteUserClass.findByIdAndDelete(inviteUserClassId);
 
-    return res.status(201);
-  } catch {
-    return res.status(404).json({ message: error.message });
-  }
+        return res.status(201);
+    } catch {
+        return res.status(404).json({ message: error.message });
+    }
 };

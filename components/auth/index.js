@@ -1,8 +1,11 @@
-
-import User from "../user/userModel.js";
+import User from '../user/userModel.js';
 import jwt from "jsonwebtoken";
 import bcrypt from 'bcrypt'
 import express from "express";
+
+// Google Auth
+import { OAuth2Client } from 'google-auth-library'
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
 const router = express.Router();
 
@@ -24,7 +27,8 @@ router.post('/register', (req, res) => {
                     { id: user._id, name: user.firstName + " " + user.lastName },
                     process.env.PRIVATE_KEY,
                 );
-                res.json({ accessToken })
+                // res.json({ accessToken })
+                res.send(accessToken)
             })
 
         } else {
@@ -53,12 +57,16 @@ router.post("/login", (req, res) => {
                 { id: user[0]._id, name: user[0].firstName + " " + user[0].lastName },
                 process.env.PRIVATE_KEY,
             );
-            return res.json({ accessToken })
+            // return res.json({ accessToken })
+            res.send(accessToken)
         })
         .catch(error => res.status(404).json(error))
 });
 
 export function verifyToken(req, res, next) {
+    // const authPaths = ['/auth/login', '/auth/register', '/auth/google'];
+    // if (authPaths.includes(req.path)) return next();
+    if(req.path.includes('/auth/')) return next();
     const bearerHeader = req.headers['authorization']
     const accessToken = bearerHeader && bearerHeader.split(' ')[1]
     if (accessToken == null) return res.status(401).json({ message: "Unauthorized" })
@@ -75,7 +83,7 @@ export function verifyToken(req, res, next) {
                 })
         }
         else res.status(404).json({ message: "Lost token", error })
-    })
+    }) 
 }
 
 router.post('/google', (req, res, next) => {
@@ -96,11 +104,19 @@ router.post('/google', (req, res, next) => {
                     if (error) {
                         return res.status(401).json({ message: "Something wrong happen, can't save your account" })
                     }
-                    req.user = user
+                    const accessToken = jwt.sign(
+                        { id: user._id, name: user.firstName + " " + user.lastName },
+                        process.env.PRIVATE_KEY,
+                    );
+                    res.send(accessToken)
                     next()
                 })
             }
-            req.user = user
+            const accessToken = jwt.sign(
+                { id: user[0]._id, name: user[0].firstName + " " + user[0].lastName },
+                process.env.PRIVATE_KEY,
+            );
+            res.send(accessToken)
             next()
         })
     }
@@ -111,11 +127,11 @@ router.get('/access', verifyToken, (req, res) => {
     res.json({ message: "Access...", user: req.user })
 })
 
-// router.get('/users', (req, res) => {
-//     User.find({}).then(users => {
-//         res.json({ users })
-//     })
-// })
+router.get('/users', (req, res) => {
+    User.find({}).then(users => {
+        res.json({ users })
+    })
+})
 
 router.post('/logout', (req, res) => {
     res.redirect('/login')

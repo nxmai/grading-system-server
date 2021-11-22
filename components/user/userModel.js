@@ -14,11 +14,6 @@ const UserSchema = new mongoose.Schema({
     photoUrl: {
         type: String,
     },
-    role: {
-        type: String,
-        enum: userRollEnum,
-        default: userRollEnum[0],
-    },
     active: {
         type: Boolean,
         default: true,

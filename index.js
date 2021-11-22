@@ -3,10 +3,6 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 
-// Google Auth
-import { OAuth2Client } from 'google-auth-library'
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
-
 const app = express();
 dotenv.config();
 
@@ -17,16 +13,15 @@ app.use(cors());
 import connectDB from "./data/configData.js";
 connectDB();
 
-import classRouter from "./components/class/index.js";
-import authRouter from './components/auth/index.js'
+import classesRouter from "./components/class/index.js";
+import authRouter, { verifyToken } from "./components/auth/index.js";
 
-app.use("/", classRouter);
-app.use('/auth', authRouter)
-// app.use("/", classRouter);
+app.use("/", verifyToken, classesRouter);
+app.use("/auth", authRouter);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
-  console.log(`Server is running in port ${port}`);
+    console.log(`Server is running in port ${port}`);
 });
 
 // mongoose.connect( process.env.CONNECTION_URL, {useNewUrlParser: true, useUnifiedTopology:true })

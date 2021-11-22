@@ -1,8 +1,8 @@
-GET http://localhost:5000/auth/access
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxOTljMjEzMzhlMzM1NmRiZWQ4NDkxMiIsIm5hbWUiOiJSYWlubiBNb29yZSIsImlhdCI6MTYzNzQ2NzMxOX0.aLd1bJ2OnMFjMjybOHMsUfZbLg9Y-mrz0EmCsAYiTaI
+GET http://localhost:5000/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxOWE2M2I1NTE2YzFjZGE0N2ZkOTk1NiIsIm5hbWUiOiJYdcOibiBNYWkiLCJpYXQiOjE2Mzc1ODY0MTl9._JbY3Q6kHlu4_7c0mUojgdDRAQz0Y7NjNjIKEgbDNOg
 
 ###
-POST http://localhost:5000/auth/login/
+POST http://localhost:5000/auth/login
 Content-Type: application/json
 
 {
@@ -17,9 +17,14 @@ Content-Type: application/json
 {
     "firstName": "Rainn",
     "lastName": "Moore",
-    "email": "testmail07@abc.com",
+    "email": "testmail08@abc.com",
     "password": "rainee"
 }
 
 ###
 GET http://localhost:5000/auth/users
+
+
+###
+GET http://localhost:5000/6199fb67f6ab37ea8b05f321
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxOWE2M2I1NTE2YzFjZGE0N2ZkOTk1NiIsIm5hbWUiOiJYdcOibiBNYWkiLCJpYXQiOjE2Mzc1ODY0MTl9._JbY3Q6kHlu4_7c0mUojgdDRAQz0Y7NjNjIKEgbDNOg
