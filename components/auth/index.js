@@ -21,13 +21,9 @@ router.post('/register', (req, res) => {
 
             newUser.save((error, user) => {
                 if (error) {
-                    return res.render('register', { error })
+                    return res.status(404)
                 }
-                const accessToken = jwt.sign(
-                    { id: user._id, name: user.firstName + " " + user.lastName },
-                    process.env.PRIVATE_KEY,
-                );
-                // res.json({ accessToken })
+                const accessToken = generateAccessToken({ id: user._id });
                 res.send(accessToken)
             })
 
@@ -44,20 +40,16 @@ router.post("/login", (req, res) => {
     if (!email || !password) return res.status(401).json({ message: "Please provide email & password" })
 
     User.find({ email })
-        .then(user => {
+        .then(users => {
 
-            if (user.length == 0) {
+            if (users.length == 0) {
                 return res.redirect('/register', { email })
             }
 
-            if (!bcrypt.compareSync(password, user[0].password)) {
+            if (!bcrypt.compareSync(password, users[0].password)) {
                 return res.status(401).json({ message: "Wrong password" })
             }
-            const accessToken = jwt.sign(
-                { id: user[0]._id, name: user[0].firstName + " " + user[0].lastName },
-                process.env.PRIVATE_KEY,
-            );
-            // return res.json({ accessToken })
+            const accessToken = generateAccessToken({ id: users[0]._id });
             res.send(accessToken)
         })
         .catch(error => res.status(404).json(error))
@@ -66,12 +58,12 @@ router.post("/login", (req, res) => {
 export function verifyToken(req, res, next) {
     // const authPaths = ['/auth/login', '/auth/register', '/auth/google'];
     // if (authPaths.includes(req.path)) return next();
-    if(req.path.includes('/auth/')) return next();
+    if (req.path.includes('/auth/')) return next();
     const bearerHeader = req.headers['authorization']
     const accessToken = bearerHeader && bearerHeader.split(' ')[1]
     if (accessToken == null) return res.status(401).json({ message: "Unauthorized" })
 
-    jwt.verify(accessToken, process.env.PRIVATE_KEY, (error, decoded) => {
+    jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (error, decoded) => {
         if (!error) {
             User.findById(decoded.id)
                 .then(user => {
@@ -84,6 +76,10 @@ export function verifyToken(req, res, next) {
         }
         else res.status(404).json({ message: "Lost token", error })
     }) 
+}
+
+function generateAccessToken(user) {
+    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15s' });
 }
 
 router.post('/google', (req, res, next) => {
@@ -104,18 +100,12 @@ router.post('/google', (req, res, next) => {
                     if (error) {
                         return res.status(401).json({ message: "Something wrong happen, can't save your account" })
                     }
-                    const accessToken = jwt.sign(
-                        { id: user._id, name: user.firstName + " " + user.lastName },
-                        process.env.PRIVATE_KEY,
-                    );
+                    const accessToken = generateAccessToken({ id: user[0]._id });
                     res.send(accessToken)
                     next()
                 })
             }
-            const accessToken = jwt.sign(
-                { id: user[0]._id, name: user[0].firstName + " " + user[0].lastName },
-                process.env.PRIVATE_KEY,
-            );
+            const accessToken = generateAccessToken({ id: user._id });
             res.send(accessToken)
             next()
         })
@@ -123,18 +113,14 @@ router.post('/google', (req, res, next) => {
     verify().catch(console.error);
 })
 
-router.get('/access', verifyToken, (req, res) => {
-    res.json({ message: "Access...", user: req.user })
-})
+// router.get('/access', verifyToken, (req, res) => {
+//     res.json({ message: "Access...", user: req.user })
+// })
 
-router.get('/users', (req, res) => {
-    User.find({}).then(users => {
-        res.json({ users })
-    })
-})
-
-router.post('/logout', (req, res) => {
-    res.redirect('/login')
-})
+// router.get('/users', (req, res) => {
+//     User.find({}).then(users => {
+//         res.json({ users })
+//     })
+// })
 
 export default router
