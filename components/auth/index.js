@@ -105,7 +105,7 @@ router.post('/google', (req, res, next) => {
                         return res.status(401).json({ message: "Something wrong happen, can't save your account" })
                     }
                     const accessToken = jwt.sign(
-                        { id: user._id, name: user.firstName + " " + user.lastName },
+                        { id: user.id, name: user.firstName + " " + user.lastName },
                         process.env.PRIVATE_KEY,
                     );
                     res.send(accessToken)
@@ -113,7 +113,7 @@ router.post('/google', (req, res, next) => {
                 })
             }
             const accessToken = jwt.sign(
-                { id: user[0]._id, name: user[0].firstName + " " + user[0].lastName },
+                { id: user[0].id, name: user[0].firstName + " " + user[0].lastName },
                 process.env.PRIVATE_KEY,
             );
             res.send(accessToken)

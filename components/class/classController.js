@@ -127,7 +127,7 @@ export const updateInviteLinkByClassID = async (req, res) => {
         await oneLink.save();
 
         res.status(201).json(oneLink);
-    } catch {
+    } catch (error){
         res.status(404).json({ message: error.message });
     }
 };
@@ -143,11 +143,10 @@ export const approveInvite = async (req, res) => {
         const user = req.user;
         // find user in invite user class
         const inviteWithRole = await InviteUserClass.findOne({
-            user: user._id,
+            email: user.email,
             link: oneLink._id,
         });
-
-        let inviteRoll = inviteWithRole ? inviteWithRole : "student";
+        let inviteRoll = inviteWithRole ? inviteWithRole.role : "student";
 
         // add user to class
         const result = new ClassUser({
@@ -155,21 +154,18 @@ export const approveInvite = async (req, res) => {
             user: user._id,
             role: inviteRoll,
         });
-        await oneLink.save();
-
-        // TODO:
-        // check if user had join in class, then update role if
+        await result.save();
 
         // delete user invite if
         if (inviteWithRole) {
             await InviteUserClass.deleteOne({
-                user: user._id,
+                email: user.email,
                 link: oneLink._id,
             });
         }
 
         return res.status(201).json(oneLink);
-    } catch {
+    } catch (error){
         res.status(404).json({ message: error.message });
     }
 };
@@ -184,7 +180,7 @@ export const createInvite = async (req, res) => {
         await newLink.save();
 
         res.status(201).json(newLink);
-    } catch {
+    } catch (error){
         res.status(404).json({ message: error.message });
     }
 };
@@ -192,7 +188,6 @@ export const createInvite = async (req, res) => {
 export const createInviteSendMail = async (req, res) => {
     try {
         const inviteLinkId = req.params.inviteLinkId;
-        console.log(inviteLinkId);
         // check link active
         const inviteLink = await InviteClassLink.findOne({linkText: inviteLinkId});
         if (!inviteLink) throw Error("no found this link");
@@ -200,16 +195,13 @@ export const createInviteSendMail = async (req, res) => {
 
         // get dto
         const { email, role } = req.body;
-        const user = await UserModel.findOne({email});
 
-        if (user) {
-            const newInviteWithRole = new InviteUserClass({
-                link: inviteLink._id,
-                user: user._id,
-                role: role,
-            });
-            await newInviteWithRole.save();
-        }
+        const newInviteWithRole = new InviteUserClass({
+            link: inviteLink._id,
+            email: email,
+            role: role,
+        });
+        await newInviteWithRole.save();
 
         // TODO send email
         await sendEmail({
@@ -231,7 +223,7 @@ export const deleteInvite = async (req, res) => {
         await InviteUserClass.findByIdAndDelete(inviteUserClassId);
 
         return res.status(201);
-    } catch {
+    } catch (error){
         return res.status(404).json({ message: error.message });
     }
 };

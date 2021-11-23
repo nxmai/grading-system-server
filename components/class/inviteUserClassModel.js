@@ -7,9 +7,9 @@ const InviteUserClassSchema = new mongoose.Schema({
         ref: 'InviteClassLink',
         required: [true, 'invite with class which has invite link'],
     },
-    user: {
-        type: mongoose.SchemaTypes.ObjectId,
-        ref: 'User',
+    email: {
+        type: String,
+        required: [true, 'invite with class which has email'],
     },
     role: {
         type: String,
@@ -21,7 +21,7 @@ const InviteUserClassSchema = new mongoose.Schema({
     toObject: { virtuals: true },
 });
 
-InviteUserClassSchema.index({ link: 1, user: 1 }, { unique: true });
+InviteUserClassSchema.index({ link: 1, email: 1 }, { unique: true });
 
 const InviteUserClass = mongoose.model('InviteUserClass', InviteUserClassSchema);
 export default InviteUserClass;

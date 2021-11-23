@@ -16,7 +16,7 @@ import {
 } from './classController.js';
 
 // one class has ONLY one link invite
-router.post('approve/:inviteLink', approveInvite) // approve this usser
+router.post('/approve/:inviteLink', approveInvite) // approve this usser
 
 router.get('/:classId/invite-link', getInviteLinkByClassID); // get link text invite user of class
 router.post('/:classId/invite-link', createInviteLink); // create link invite
