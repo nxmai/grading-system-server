@@ -15,6 +15,7 @@ import connectDB from "./data/configData.js";
 connectDB();
 
 import classesRouter from "./components/class/index.js";
+import userRouter from "./components/user/index.js";
 import authRouter, { verifyToken } from "./components/auth/index.js";
 
 // middleware to show log on console
@@ -27,6 +28,7 @@ if (process.env.NODE_ENV === 'development') {
   }
 
 app.use("/", verifyToken, classesRouter);
+app.use("/user/", verifyToken, userRouter);
 app.use("/auth", authRouter);
 
 const port = process.env.PORT || 5000;
