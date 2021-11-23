@@ -22,9 +22,17 @@ export const getClasses = async (req, res) => {
 export const getClassById = async (req, res) => {
     try {
         const classId = req.params.classId;
+        const userId = req.user._id;
         const classData = await Class.findById(classId);
-        
-        res.status(200).json(classData);
+        if (!classData) throw Error("class not found");
+        // check user joind class
+        const userClass = await ClassUser.findOne({
+            class: classData._id,
+            user: userId,
+        })
+        if (!userClass) throw Error("user not joined this class");
+
+        return res.status(200).json({role: userClass.role, ...classData});
     } catch (error) {
         res.status(404).json({ message: error.message });
     }

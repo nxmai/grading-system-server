@@ -96,7 +96,7 @@ router.post('/google', (req, res) => {
 
         const user = await User.findOne({ email });
             if (!user) {
-                const newUser = new User({ firstName: given_name, lastName: family_name, email, picture })
+                const newUser = new User({ firstName: given_name, lastName: family_name, email, photoUrl: picture })
                 newUser.save((error, user) => {
                     if (error) {
                         return res.status(401).json({ message: "Something wrong happen, can't save your account" })
