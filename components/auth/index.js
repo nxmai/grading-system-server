@@ -1,5 +1,5 @@
 import User from '../user/userModel.js';
-import jwt from "jsonwebtoken";
+import jwt, { decode } from "jsonwebtoken";
 import bcrypt from 'bcrypt'
 import express from "express";
 
@@ -21,13 +21,9 @@ router.post('/register', (req, res) => {
 
             newUser.save((error, user) => {
                 if (error) {
-                    return res.render('register', { error })
+                    return res.status(404)
                 }
-                const accessToken = jwt.sign(
-                    { id: user.id, name: user.firstName + " " + user.lastName },
-                    process.env.PRIVATE_KEY,
-                );
-                // res.json({ accessToken })
+                const accessToken = generateAccessToken({ id: user.id });
                 res.send(accessToken)
             })
 
@@ -44,20 +40,16 @@ router.post("/login", (req, res) => {
     if (!email || !password) return res.status(401).json({ message: "Please provide email & password" })
 
     User.find({ email })
-        .then(user => {
+        .then(users => {
 
-            if (user.length == 0) {
+            if (users.length == 0) {
                 return res.redirect('/register', { email })
             }
 
-            if (!bcrypt.compareSync(password, user[0].password)) {
+            if (!bcrypt.compareSync(password, users[0].password)) {
                 return res.status(401).json({ message: "Wrong password" })
             }
-            const accessToken = jwt.sign(
-                { id: user[0]._id, name: user[0].firstName + " " + user[0].lastName },
-                process.env.PRIVATE_KEY,
-            );
-            // return res.json({ accessToken })
+            const accessToken = generateAccessToken({ id: users[0].id });
             res.send(accessToken)
         })
         .catch(error => res.status(404).json(error))
@@ -66,12 +58,12 @@ router.post("/login", (req, res) => {
 export function verifyToken(req, res, next) {
     // const authPaths = ['/auth/login', '/auth/register', '/auth/google'];
     // if (authPaths.includes(req.path)) return next();
-    if(req.path.includes('/auth/')) return next();
+    if (req.path.includes('/auth/')) return next();
     const bearerHeader = req.headers['authorization']
     const accessToken = bearerHeader && bearerHeader.split(' ')[1]
     if (accessToken == null) return res.status(401).json({ message: "Unauthorized" })
 
-    jwt.verify(accessToken, process.env.PRIVATE_KEY, (error, decoded) => {
+    jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (error, decoded) => {
         if (!error) {
             User.findById(decoded.id)
                 .then(user => {
@@ -83,10 +75,15 @@ export function verifyToken(req, res, next) {
                 })
         }
         else res.status(404).json({ message: "Lost token", error })
-    }) 
+    })
 }
 
-router.post('/google', (req, res, next) => {
+function generateAccessToken(user) {
+    console.log('[jwt sign] ', user);
+    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
+}
+
+router.post('/google', (req, res) => {
     const token = req.body.tokenId
 
     async function verify() {
@@ -95,46 +92,34 @@ router.post('/google', (req, res, next) => {
             audience: process.env.GOOGLE_CLIENT_ID,
         });
         const payload = ticket.getPayload();
-        const { email, given_name, family_name, picture } = payload
+        const { email, given_name, family_name, picture } = payload;
 
-        User.find({ email }).then(user => {
-            if (user.length == 0) {
+        const user = await User.findOne({ email });
+            if (!user) {
                 const newUser = new User({ firstName: given_name, lastName: family_name, email, picture })
                 newUser.save((error, user) => {
                     if (error) {
                         return res.status(401).json({ message: "Something wrong happen, can't save your account" })
                     }
-                    const accessToken = jwt.sign(
-                        { id: user.id, name: user.firstName + " " + user.lastName },
-                        process.env.PRIVATE_KEY,
-                    );
-                    res.send(accessToken)
-                    next()
+                    const accessToken = generateAccessToken({ id: user.id });
+                    return res.send(accessToken)
                 })
+            } else {
+                const accessToken = generateAccessToken({ id: user.id });
+                return res.send(accessToken);
             }
-            const accessToken = jwt.sign(
-                { id: user[0].id, name: user[0].firstName + " " + user[0].lastName },
-                process.env.PRIVATE_KEY,
-            );
-            res.send(accessToken)
-            next()
-        })
     }
     verify().catch(console.error);
 })
 
-router.get('/access', verifyToken, (req, res) => {
-    res.json({ message: "Access...", user: req.user })
-})
+// router.get('/access', verifyToken, (req, res) => {
+//     res.json({ message: "Access...", user: req.user })
+// })
 
-router.get('/users', (req, res) => {
-    User.find({}).then(users => {
-        res.json({ users })
-    })
-})
-
-router.post('/logout', (req, res) => {
-    res.redirect('/login')
-})
+// router.get('/users', (req, res) => {
+//     User.find({}).then(users => {
+//         res.json({ users })
+//     })
+// })
 
 export default router

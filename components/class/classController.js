@@ -2,7 +2,6 @@ import Class from "./classModel.js";
 import InviteClassLink from "./inviteClassLinkModel.js";
 import InviteUserClass from "./inviteUserClassModel.js";
 import ClassUser from "./classUserModel.js";
-import UserModel from "../user/userModel.js";
 import { sendEmail } from "../../utils/send_email.js";
 
 export const getClasses = async (req, res) => {
