@@ -134,7 +134,7 @@ export const updateInviteLinkByClassID = async (req, res) => {
 
 export const approveInvite = async (req, res) => {
     try {
-        const inviteLink = req.param.inviteLink;
+        const inviteLink = req.params.inviteLink;
         const oneLink = await InviteClassLink.findOne({ linkText: inviteLink });
         if (!oneLink) throw Error("not found this invite link for this class");
         if (!oneLink.isActive) throw Error("this link not active");
