@@ -9,14 +9,24 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
 const router = express.Router();
 
+export function hashPw(pw) {
+    const saltRounds = 10
+    const hash = bcrypt.hashSync(pw, saltRounds)
+    return hash;
+}
+
+export function comparePw(src, hash) {
+    return bcrypt.compareSync(src, hash)
+}
+
 router.post('/register', (req, res) => {
     const { firstName, lastName, email, password } = req.body
-    const saltRounds = 10
+    
 
     User.find({ email }).then(user => {
         if (user.length == 0) {
 
-            const hash = bcrypt.hashSync(password, saltRounds)
+            const hash = hashPw(password);
             const newUser = new User({ firstName, lastName, email, password: hash })
 
             newUser.save((error, user) => {
@@ -41,14 +51,15 @@ router.post("/login", (req, res) => {
 
     User.find({ email })
         .then(users => {
-
+            console.log(users);
             if (users.length == 0) {
                 return res.redirect('/register', { email })
             }
-
-            if (!bcrypt.compareSync(password, users[0].password)) {
+            
+            if (!comparePw(password, users[0].password)) {
                 return res.status(401).json({ message: "Wrong password" })
             }
+
             const accessToken = generateAccessToken({ id: users[0].id });
             res.send(accessToken)
         })
