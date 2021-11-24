@@ -38,6 +38,25 @@ export const getClassById = async (req, res) => {
     }
 };
 
+export const getUserRoleByClassId = async (req, res) => {
+    try {
+        const classId = req.params.classId;
+        const userId = req.user._id;
+        const classData = await Class.findById(classId);
+        if (!classData) throw Error("class not found");
+        // check user joind class
+        const userClass = await ClassUser.findOne({
+            class: classData._id,
+            user: userId,
+        });
+        if (!userClass) throw Error("user not joined this class");
+
+        return res.status(200).json({role: userClass.role});
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+};
+
 export const createClass = async (req, res) => {
     try {
         const userId = req.user._id;

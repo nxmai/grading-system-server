@@ -4,6 +4,7 @@ import { checkTeacherClass, checkJoinedClass } from "./classService.js";
 
 import {
     getClasses, 
+    getUserRoleByClassId,
     getClassById,
     createClass, 
     getTeacherOfClass,
@@ -28,6 +29,7 @@ router.delete('/:classId/invite-link/:inviteLinkId/invite/:inviteUserClassId', c
 
 router.get('/', getClasses);
 router.post('/', createClass);
+router.get('/:classId/role', checkJoinedClass, getUserRoleByClassId);
 router.get('/:classId', checkJoinedClass, getClassById);
 router.get('/:classId/people/teacher', checkJoinedClass, getTeacherOfClass);
 router.get('/:classId/people/student', checkJoinedClass, getStudentOfClass);
