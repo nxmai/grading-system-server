@@ -3,6 +3,7 @@ import InviteClassLink from "./inviteClassLinkModel.js";
 import InviteUserClass from "./inviteUserClassModel.js";
 import ClassUser from "./classUserModel.js";
 import { sendEmail } from "../../utils/send_email.js";
+import {userClassRollEnum } from "./userClassRollEnum.js";
 
 export const getClasses = async (req, res) => {
     try {
@@ -66,7 +67,7 @@ export const createClass = async (req, res) => {
         const newClassUser = new ClassUser({
             class: newClass._id,
             user: userId,
-            role: "teacher",
+            role: userClassRollEnum[1],
         });
         await newClassUser.save();
 
@@ -235,12 +236,14 @@ export const createInviteSendMail = async (req, res) => {
         });
         await newInviteWithRole.save();
 
-        // TODO send email
+        const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+        const message = `Teacher of class invite you to class with ${role}. Please checkout link: ${clientUrl}/confirm/${inviteLinkId}`
+
         await sendEmail({
             email: email,
-            name: "Nhut",
-            subject: "asdf",
-            message: "asf dsd fg",
+            name: "Alpha Web Team",
+            subject: "Invitation Link to Doodle Classroom",
+            message: message,
         });
 
         return res.status(201).json({ message: "success" });

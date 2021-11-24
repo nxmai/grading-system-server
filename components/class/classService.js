@@ -10,7 +10,7 @@ export async function checkTeacherClass(req, res, next) {
             user: userId,
         })
         if (!userClass) throw Error("user not in class");
-        if (!userClass.role != userClassRollEnum[1]) throw Error("permission deny")
+        if (userClass.role !== userClassRollEnum[1]) throw Error("permission deny")
         return next();
     } catch (error) {
         return res.status(404).json({ message: error.message });
