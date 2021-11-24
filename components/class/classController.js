@@ -9,7 +9,7 @@ export const getClasses = async (req, res) => {
         const userId = req.user._id;
         const classByUserId = await ClassUser.find({ user: userId }).populate({
             path: "class",
-            select: 'name subject description',
+            select: "name subject description",
         });
         const total = classByUserId.map((item) => item.class);
 
@@ -29,10 +29,10 @@ export const getClassById = async (req, res) => {
         const userClass = await ClassUser.findOne({
             class: classData._id,
             user: userId,
-        })
+        });
         if (!userClass) throw Error("user not joined this class");
 
-        return res.status(200).json({role: userClass.role, ...classData});
+        return res.status(200).json(classData);
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
@@ -63,7 +63,11 @@ export const createClass = async (req, res) => {
         const newClass = new Class({ ...req.body });
         await newClass.save();
 
-        const newClassUser = new ClassUser({class: newClass._id, user: userId, role: "teacher"});
+        const newClassUser = new ClassUser({
+            class: newClass._id,
+            user: userId,
+            role: "teacher",
+        });
         await newClassUser.save();
 
         res.status(201).json(newClassUser);
@@ -121,7 +125,7 @@ export const getInviteLinkByClassID = async (req, res) => {
         if (!oneLink.isActive) throw Error("this link is not active");
 
         res.status(201).json(oneLink);
-    } catch (error){
+    } catch (error) {
         res.status(404).json({ message: error.message });
     }
 };
@@ -137,7 +141,7 @@ export const createInviteLink = async (req, res) => {
         console.log(newLink);
 
         return res.status(201).json(newLink);
-    } catch (error){
+    } catch (error) {
         res.status(404).json({ message: error.message });
     }
 };
@@ -153,7 +157,7 @@ export const updateInviteLinkByClassID = async (req, res) => {
         await oneLink.save();
 
         res.status(201).json(oneLink);
-    } catch (error){
+    } catch (error) {
         res.status(404).json({ message: error.message });
     }
 };
@@ -191,7 +195,7 @@ export const approveInvite = async (req, res) => {
         }
 
         return res.status(201).json(oneLink);
-    } catch (error){
+    } catch (error) {
         res.status(404).json({ message: error.message });
     }
 };
@@ -206,7 +210,7 @@ export const createInvite = async (req, res) => {
         await newLink.save();
 
         res.status(201).json(newLink);
-    } catch (error){
+    } catch (error) {
         res.status(404).json({ message: error.message });
     }
 };
@@ -215,7 +219,9 @@ export const createInviteSendMail = async (req, res) => {
     try {
         const inviteLinkId = req.params.inviteLinkId;
         // check link active
-        const inviteLink = await InviteClassLink.findOne({linkText: inviteLinkId});
+        const inviteLink = await InviteClassLink.findOne({
+            linkText: inviteLinkId,
+        });
         if (!inviteLink) throw Error("no found this link");
         if (!inviteLink.isActive) throw Error("this link not active");
 
@@ -234,11 +240,11 @@ export const createInviteSendMail = async (req, res) => {
             email: email,
             name: "Nhut",
             subject: "asdf",
-            message: "asf dsd fg"
-        })
+            message: "asf dsd fg",
+        });
 
-        return res.status(201).json({message: "success"});
-    } catch (error){
+        return res.status(201).json({ message: "success" });
+    } catch (error) {
         return res.status(404).json({ message: error.message });
     }
 };
@@ -249,7 +255,7 @@ export const deleteInvite = async (req, res) => {
         await InviteUserClass.findByIdAndDelete(inviteUserClassId);
 
         return res.status(201);
-    } catch (error){
+    } catch (error) {
         return res.status(404).json({ message: error.message });
     }
 };
