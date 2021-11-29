@@ -41,11 +41,11 @@ export const updateStudentCardId = async (req, res) => {
                 { ...user._doc, studentCardID: studentCardId },
                 { new: true }
             );
+            return res.status(200).json(updatedUser);
         } else {
             throw Error("Student card exists");
         }
-
-        return res.status(200).json(user);
+        // return res.status(200).json(user);
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
