@@ -90,7 +90,6 @@ export function verifyToken(req, res, next) {
 }
 
 function generateAccessToken(user) {
-    console.log('[jwt sign] ', user);
     return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
 }
 
