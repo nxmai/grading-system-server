@@ -17,7 +17,7 @@ export const updateMe = async (req, res) => {
     try {
         const userId = req.user._id;
         const data = req.body;
-        const user = await UserModel.findByIdAndUpdate(userId, data);
+        const user = await UserModel.findByIdAndUpdate(userId, data, { new: true });
         if (!user) throw Error("user not found");
 
         return res.status(200).json(user);

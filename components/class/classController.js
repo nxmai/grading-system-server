@@ -12,6 +12,7 @@ export const getClasses = async (req, res) => {
             path: "class",
             select: "name subject description",
         });
+        
         const total = classByUserId.map((item) => item.class);
 
         res.status(200).json(total);
@@ -33,6 +34,7 @@ export const getClassById = async (req, res) => {
         });
         if (!userClass) throw Error("user not joined this class");
 
+        console.log(classData);
         return res.status(200).json(classData);
     } catch (error) {
         res.status(404).json({ message: error.message });
@@ -71,7 +73,7 @@ export const createClass = async (req, res) => {
         });
         await newClassUser.save();
 
-        res.status(201).json(newClassUser);
+        res.status(201).json(newClass);
     } catch (error) {
         console.log(error);
         res.status(404).json({ message: error.message });
