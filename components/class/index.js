@@ -17,6 +17,14 @@ import {
     deleteInvite 
 } from './classController.js';
 
+import {
+    createClassGrade,
+    getClassGradeByClassId,
+    updateOrderClassGrade,
+    updateClassGradeById,
+    deleteClassGradeById,
+} from './classGrade/classGradeCtrl.js';
+
 // one class has ONLY one link invite
 router.post('/approve/:inviteLink', approveInvite) // approve this usser
 
@@ -26,6 +34,13 @@ router.put('/:classId/invite-link', checkTeacherClass, updateInviteLinkByClassID
 
 router.post('/:classId/invite-link/:inviteLinkId/invite', checkTeacherClass, createInviteSendMail); // invite teacher/student with send email
 router.delete('/:classId/invite-link/:inviteLinkId/invite/:inviteUserClassId', checkTeacherClass, deleteInvite); // delete teacher invite
+
+router.get('/:classId/grade', checkTeacherClass, getClassGradeByClassId);
+router.post('/:classId/grade', checkTeacherClass, createClassGrade);
+router.patch('/:classId/grade/order', checkTeacherClass, updateOrderClassGrade);
+// router.get('/:classId/grade/:id',);
+router.put('/:classId/grade/:id', checkTeacherClass, updateClassGradeById);
+router.delete('/:classId/grade/:id', checkTeacherClass, deleteClassGradeById);
 
 router.get('/', getClasses);
 router.post('/', createClass);
