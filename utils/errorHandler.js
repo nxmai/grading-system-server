@@ -1,5 +1,4 @@
-/* eslint-disable no-param-reassign */
-const AppError = require('./appError');
+import AppError from './appError.js';
 
 const handleCastErrorDB = (error) => {
   const message = `Invalid ${error.path}: ${error.value}`;
