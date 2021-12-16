@@ -4,18 +4,24 @@ import { checkTeacherClass, checkJoinedClass } from "./classService.js";
 
 import {
     getClasses, 
-    getUserRoleByClassId,
     getClassById,
     createClass, 
-    getTeacherOfClass,
-    getStudentOfClass,
+} from './classController.js';
+
+import {
     getInviteLinkByClassID,
     createInviteLink, 
     updateInviteLinkByClassID, 
     approveInvite, 
     createInviteSendMail, 
-    deleteInvite 
-} from './classController.js';
+    deleteInvite
+} from './classInviter/inciteClassCtrl.js';
+
+import {
+    getTeacherOfClass,
+    getStudentOfClass,
+    getUserRoleByClassId,
+} from './classUser/classUserCtrl.js';
 
 import {
     createClassGrade,

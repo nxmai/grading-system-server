@@ -1,8 +1,10 @@
 export const userRollEnum = [
     'user',
     'admin',
-    'gest'
+    'guest'
 ]
-export const getEnum = function(alias) {
-    return "user";
+export const getEnum = {
+    USER: 'user',
+    ADMIN: 'admin',
+    GUEST: 'guest'
 };

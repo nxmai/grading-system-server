@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { userClassRollEnum } from './userClassRollEnum.js';
+import { userClassRollEnum, EnumUserRoll } from './userClassRollEnum.js';
 
 const ClassUserSchema = new mongoose.Schema({
     class: {
@@ -13,7 +13,7 @@ const ClassUserSchema = new mongoose.Schema({
     role: {
         type: String,
         enum: userClassRollEnum,
-        default: userClassRollEnum[0],
+        default: EnumUserRoll.STUDENT,
     }
 }, {
     timestamps: true,
