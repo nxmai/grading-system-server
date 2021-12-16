@@ -17,6 +17,7 @@ connectDB();
 import classesRouter from "./components/class/index.js";
 import userRouter from "./components/user/index.js";
 import authRouter, { verifyToken } from "./components/auth/index.js";
+import globalErrorHandler from './utils/errorHandler.js';
 
 // middleware to show log on console
 if (process.env.NODE_ENV === 'development') {
@@ -30,6 +31,12 @@ if (process.env.NODE_ENV === 'development') {
 app.use("/", verifyToken, classesRouter);
 app.use("/user/", verifyToken, userRouter);
 app.use("/auth", authRouter);
+
+app.all('*', (request, response, next) => {
+  next(new AppError(`Can't find ${request.originalUrl} on this server`, 404));
+});
+
+app.use(globalErrorHandler);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
