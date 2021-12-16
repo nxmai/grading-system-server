@@ -1,9 +1,14 @@
-import ClassScoreModel from "./classScoreModel.js";
-import ClassStudentIdModel from "./classStudentIdModel.js";
+import fs from 'fs';
+import { parse } from 'csv-parse/sync';
+import multer from "multer";
+import { nanoid } from 'nanoid';
 
 import AppError from "../../../utils/appError.js";
 import catchAsync from "../../../utils/catchAsync.js";
 import sendResponse from "../../../utils/sendResponse.js";
+
+import ClassStudentIdModel from "./classStudentIdModel.js";
+import ClassGradeModel from '../classGrade/classGradeModel.js';
 
 export const uploadStudentList = catchAsync( async function(req, res, next){
     // TODO
@@ -16,14 +21,7 @@ export const uploadStudentList = catchAsync( async function(req, res, next){
 });
 
 export const downloadTemplateStudentList = catchAsync( async function(req, res, next){
-    // TODO
-    /**
-     * return csv file with structure
-     * 2 columns
-     * studentId
-     * fullname
-     */
-    return sendResponse( null, 200, res );
+    return res.download('samples/upload_student.csv');
 });
 
 export const getFullScoreByClassId = catchAsync( async function(req, res, next){
@@ -60,7 +58,31 @@ export const downloadTemplateScoreByGradeId = catchAsync( async function(req, re
      * download score template of one grade
      * in board -> it is one column
      */
-    return sendResponse( null, 200, res );
+    const classId = req.classUser.class._id;
+    if (!classId) return new AppError('class not found', 404);
+    const classGradeId = req.params.gradeId;
+    if (!classGradeId) return new AppError('grade not found', 404);
+
+    // get student in class
+    const listStudentOfClass = await ClassStudentIdModel.find({class: classId});
+    // mapping data in score
+    const listStudentHadScoreOfGrade = await ClassGradeModel.find({ classGrade: classGradeId});
+
+    // convert to csv
+
+    // loop data element for writing data into file
+    // this is for demo
+    const data = ['name', 'student_id', 'score'];
+    const dataStr = data.join(',') + '\n';
+
+    // write and return file
+    const randomStr = nanoid();
+    const fileName = `template_score_for_grade_${classGradeId}_of_class_${classId}_no_${randomStr}.csv`;
+    const writeStream = fs.createWriteStream('tempt/'+ fileName);
+    writeStream.write(dataStr, ()=>{
+        // TODO : save file name to dtabase
+        return res.download('tempt/' + fileName);
+    });
 });
 
 export const uploadScoreByGradeId = catchAsync( async function(req, res, next){
@@ -68,7 +90,21 @@ export const uploadScoreByGradeId = catchAsync( async function(req, res, next){
     /**
      * create or update score of classStudent
      */
-    return sendResponse( null, 200, res );
+
+    // check file exist
+    const filePath = req.file.path;
+    if (!filePath) { return new AppError("no file found", 404); }
+    // read file
+    const input = fs.readFileSync(filePath);
+    // parse data
+    const records = parse(input, {
+        columns: true,
+        skip_empty_lines: true
+    });
+    // process
+    console.log("processing ...");
+    console.log(records);
+    return sendResponse( records, 201, res );
 });
 
 export const markReturnedByGradeId = catchAsync( async function(req, res, next){
@@ -78,3 +114,5 @@ export const markReturnedByGradeId = catchAsync( async function(req, res, next){
      */
     return sendResponse( null, 200, res );
 });
+
+export const upload = multer({ dest: "./uploads/" });

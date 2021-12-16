@@ -1,0 +1,1 @@
+This folder is store file sample to teacher download.

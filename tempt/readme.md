@@ -1,0 +1,1 @@
+This folder to store tempt data when download or upload score data. 

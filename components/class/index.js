@@ -31,6 +31,18 @@ import {
     deleteClassGradeById,
 } from './classGrade/classGradeCtrl.js';
 
+import {
+    upload,
+    downloadTemplateStudentList,
+    uploadStudentList,
+    uploadScoreByGradeId,
+    downloadTemplateScoreByGradeId,
+    downloadFullScoreByClassId,
+    updateClassScoreById,
+    markReturnedByGradeId
+
+} from './classScore/classScoreCtrl.js';
+
 // one class has ONLY one link invite
 router.post('/approve/:inviteLink', approveInvite) // approve this usser
 
@@ -54,5 +66,13 @@ router.get('/:classId/role', checkJoinedClass, getUserRoleByClassId);
 router.get('/:classId', checkJoinedClass, getClassById);
 router.get('/:classId/people/teacher', checkJoinedClass, getTeacherOfClass);
 router.get('/:classId/people/student', checkJoinedClass, getStudentOfClass);
+
+router.get('/:classId/score/student/file', checkTeacherClass, downloadTemplateStudentList);
+router.post('/:classId/score/student/file', checkTeacherClass, upload.single('file'), uploadStudentList);
+router.get('/:classId/score/full/file', checkTeacherClass, downloadFullScoreByClassId);
+router.put('/:classId/score/:gradeId/update/:scoreId', checkTeacherClass, updateClassScoreById);
+router.put('/:classId/score/:gradeId/mark-returned-all', checkTeacherClass, markReturnedByGradeId);
+router.post('/:classId/score/:gradeId/upload/', checkTeacherClass, upload.single('file'), uploadScoreByGradeId);
+router.get('/:classId/score/:gradeId/download/', checkTeacherClass, downloadTemplateScoreByGradeId);
 
 export default router;
