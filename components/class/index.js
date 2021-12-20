@@ -24,22 +24,22 @@ import {
 } from './classUser/classUserCtrl.js';
 
 import {
-    createClassGrade,
-    getClassGradeByClassId,
-    updateOrderClassGrade,
-    updateClassGradeById,
-    deleteClassGradeById,
-} from './classGrade/classGradeCtrl.js';
+    createAssignment,
+    getAssignmentByClassId,
+    updateOrderAssignment,
+    updateAssignmentById,
+    deleteAssignmentById,
+} from './classAssignment/classAssignmentCtrl.js';
 
 import {
     upload,
     downloadTemplateStudentList,
     uploadStudentList,
-    uploadScoreByGradeId,
-    downloadTemplateScoreByGradeId,
+    uploadScoreByAssignmentId,
+    downloadTemplateScoreByAssignmentId,
     downloadFullScoreByClassId,
     updateClassScoreById,
-    markReturnedByGradeId
+    markReturnedByAssignmentId
 
 } from './classScore/classScoreCtrl.js';
 
@@ -53,12 +53,12 @@ router.put('/:classId/invite-link', checkTeacherClass, updateInviteLinkByClassID
 router.post('/:classId/invite-link/:inviteLinkId/invite', checkTeacherClass, createInviteSendMail); // invite teacher/student with send email
 router.delete('/:classId/invite-link/:inviteLinkId/invite/:inviteUserClassId', checkTeacherClass, deleteInvite); // delete teacher invite
 
-router.get('/:classId/grade', checkTeacherClass, getClassGradeByClassId);
-router.post('/:classId/grade', checkTeacherClass, createClassGrade);
-router.patch('/:classId/grade/order', checkTeacherClass, updateOrderClassGrade);
-// router.get('/:classId/grade/:id',);
-router.put('/:classId/grade/:id', checkTeacherClass, updateClassGradeById);
-router.delete('/:classId/grade/:id', checkTeacherClass, deleteClassGradeById);
+router.get('/:classId/assignment', checkTeacherClass, getAssignmentByClassId);
+router.post('/:classId/assignment', checkTeacherClass, createAssignment);
+router.patch('/:classId/assignment/order', checkTeacherClass, updateOrderAssignment);
+// router.get('/:classId/assignment/:id',);
+router.put('/:classId/assignment/:id', checkTeacherClass, updateAssignmentById);
+router.delete('/:classId/assignment/:id', checkTeacherClass, deleteAssignmentById);
 
 router.get('/', getClasses);
 router.post('/', createClass);
@@ -70,9 +70,9 @@ router.get('/:classId/people/student', checkJoinedClass, getStudentOfClass);
 router.get('/:classId/score/student/file', checkTeacherClass, downloadTemplateStudentList);
 router.post('/:classId/score/student/file', checkTeacherClass, upload.single('file'), uploadStudentList);
 router.get('/:classId/score/full/file', checkTeacherClass, downloadFullScoreByClassId);
-router.put('/:classId/score/:gradeId/update/:scoreId', checkTeacherClass, updateClassScoreById);
-router.put('/:classId/score/:gradeId/mark-returned-all', checkTeacherClass, markReturnedByGradeId);
-router.post('/:classId/score/:gradeId/upload/', checkTeacherClass, upload.single('file'), uploadScoreByGradeId);
-router.get('/:classId/score/:gradeId/download/', checkTeacherClass, downloadTemplateScoreByGradeId);
+router.put('/:classId/score/:assignmentId/update/:scoreId', checkTeacherClass, updateClassScoreById);
+router.put('/:classId/score/:assignmentId/mark-returned-all', checkTeacherClass, markReturnedByAssignmentId);
+router.post('/:classId/score/:assignmentId/upload/', checkTeacherClass, upload.single('file'), uploadScoreByAssignmentId);
+router.get('/:classId/score/:assignmentId/download/', checkTeacherClass, downloadTemplateScoreByAssignmentId);
 
 export default router;

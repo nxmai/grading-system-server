@@ -6,10 +6,10 @@ const classScoreSchema = new mongoose.Schema({
         ref: 'classStudentId',
         required: [true, 'Score must have of one Student']
     },
-    classGrade: {
+    classAssignment: {
         type: mongoose.SchemaTypes.ObjectId,
-        ref: 'ClassGrade',
-        required: [true, 'Score must have of one Grade']
+        ref: 'ClassAssignment',
+        required: [true, 'Score must have of one Assignment']
     },
     score: {
         type: Number,

@@ -8,7 +8,7 @@ import catchAsync from "../../../utils/catchAsync.js";
 import sendResponse from "../../../utils/sendResponse.js";
 
 import ClassStudentIdModel from "./classStudentIdModel.js";
-import ClassGradeModel from '../classGrade/classGradeModel.js';
+import ClassAssignmentModel from '../classAssignment/classAssignmentModel.js';
 
 export const uploadStudentList = catchAsync( async function(req, res, next){
     // TODO
@@ -52,21 +52,21 @@ export const updateClassScoreById = catchAsync( async function(req, res, next){
     return sendResponse( null, 200, res );
 });
 
-export const downloadTemplateScoreByGradeId = catchAsync( async function(req, res, next){
+export const downloadTemplateScoreByAssignmentId = catchAsync( async function(req, res, next){
     // TODO
     /**
-     * download score template of one grade
+     * download score template of one assignment
      * in board -> it is one column
      */
     const classId = req.classUser.class._id;
     if (!classId) return new AppError('class not found', 404);
-    const classGradeId = req.params.gradeId;
-    if (!classGradeId) return new AppError('grade not found', 404);
+    const classAssignmentId = req.params.assignmentId;
+    if (!classAssignmentId) return new AppError('assignment not found', 404);
 
     // get student in class
     const listStudentOfClass = await ClassStudentIdModel.find({class: classId});
     // mapping data in score
-    const listStudentHadScoreOfGrade = await ClassGradeModel.find({ classGrade: classGradeId});
+    const listStudentHadScoreOfGrade = await ClassAssignmentModel.find({ classAssignment: classAssignmentId});
 
     // convert to csv
 
@@ -77,7 +77,7 @@ export const downloadTemplateScoreByGradeId = catchAsync( async function(req, re
 
     // write and return file
     const randomStr = nanoid();
-    const fileName = `template_score_for_grade_${classGradeId}_of_class_${classId}_no_${randomStr}.csv`;
+    const fileName = `template_score_for_assignment_${classAssignmentId}_of_class_${classId}_no_${randomStr}.csv`;
     const writeStream = fs.createWriteStream('tempt/'+ fileName);
     writeStream.write(dataStr, ()=>{
         // TODO : save file name to dtabase
@@ -85,7 +85,7 @@ export const downloadTemplateScoreByGradeId = catchAsync( async function(req, re
     });
 });
 
-export const uploadScoreByGradeId = catchAsync( async function(req, res, next){
+export const uploadScoreByAssignmentId = catchAsync( async function(req, res, next){
     // TODO
     /**
      * create or update score of classStudent
@@ -107,10 +107,10 @@ export const uploadScoreByGradeId = catchAsync( async function(req, res, next){
     return sendResponse( records, 201, res );
 });
 
-export const markReturnedByGradeId = catchAsync( async function(req, res, next){
+export const markReturnedByAssignmentId = catchAsync( async function(req, res, next){
     //TODO
     /**
-     * mark all score in grade is returned
+     * mark all score in assignment is returned
      */
     return sendResponse( null, 200, res );
 });
