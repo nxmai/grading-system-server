@@ -34,6 +34,7 @@ import {
 import {
     upload,
     downloadTemplateStudentList,
+    getStudentScoreByClassId,
     uploadStudentList,
     uploadScoreByAssignmentId,
     downloadTemplateScoreByAssignmentId,
@@ -68,6 +69,7 @@ router.get('/:classId/people/teacher', checkJoinedClass, getTeacherOfClass);
 router.get('/:classId/people/student', checkJoinedClass, getStudentOfClass);
 
 router.get('/:classId/score/student/file', checkTeacherClass, downloadTemplateStudentList);
+router.get('/:classId/score/student/', checkTeacherClass, getStudentScoreByClassId);
 router.post('/:classId/score/student/file', checkTeacherClass, upload.single('file'), uploadStudentList);
 router.get('/:classId/score/full/file', checkTeacherClass, downloadFullScoreByClassId);
 router.put('/:classId/score/:assignmentId/update/:scoreId', checkTeacherClass, updateClassScoreById);

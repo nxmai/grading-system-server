@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const classScoreSchema = new mongoose.Schema({
     classStudentId: {
         type: mongoose.SchemaTypes.ObjectId,
-        ref: 'classStudentId',
+        ref: 'classStudentId2',
         required: [true, 'Score must have of one Student']
     },
     classAssignment: {

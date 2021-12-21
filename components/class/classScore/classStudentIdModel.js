@@ -17,7 +17,10 @@ const classStudentIdSchema = new mongoose.Schema({
 }, {
     timestamps: true,
     toObject: { virtuals: true },
+    toJSON: { virtuals: true },
 });
+
+classStudentIdSchema.index({ studentId: 1, class: 1 }, { unique: true });
 
 classStudentIdSchema.virtual('user', {
     ref: 'User',
@@ -25,5 +28,5 @@ classStudentIdSchema.virtual('user', {
     localField: 'studentId',
 });
 
-const classStudentId = mongoose.model('ClassStudentId', classStudentIdSchema);
+const classStudentId = mongoose.model('ClassStudentId2', classStudentIdSchema);
 export default classStudentId;

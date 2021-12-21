@@ -11,14 +11,41 @@ import ClassStudentIdModel from "./classStudentIdModel.js";
 import ClassAssignmentModel from '../classAssignment/classAssignmentModel.js';
 
 export const uploadStudentList = catchAsync( async function(req, res, next){
-    // TODO
-    /**
-     * parse csv
-     * import to classStudentId
-     * return list sucess or fail
-     */
-    return sendResponse( null, 200, res );
+    const classId = req.classUser.class._id;
+    if (!classId) return new AppError('class not found', 404);
+
+    // check file exist
+    const filePath = req.file.path;
+    if (!filePath) { return new AppError("no file found", 404); }
+    // read file
+    const input = fs.readFileSync(filePath);
+    // parse data
+    const records = parse(input, {
+        columns: true,
+        skip_empty_lines: true
+    });
+    const dta = [];
+    records.forEach(e=> {
+        dta.push({
+            class: classId,
+            studentId: e.student_id,
+            fullName: e.full_name,
+        })
+    })
+    // process
+    const resp = await ClassStudentIdModel.insertMany(dta, { ordered: false});
+    return sendResponse( resp, 200, res );
 });
+
+export const getStudentScoreByClassId = catchAsync( async function(req, res, next) {
+    const classId = req.classUser.class._id;
+    if (!classId) return new AppError('class not found', 404);
+
+    const dta = await ClassStudentIdModel.find({
+        class: classId
+    }).populate('user');
+    return sendResponse( dta, 200, res );
+})
 
 export const downloadTemplateStudentList = catchAsync( async function(req, res, next){
     return res.download('samples/upload_student.csv');
