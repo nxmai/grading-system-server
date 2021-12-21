@@ -2,11 +2,11 @@ import mongoose from 'mongoose';
 const ClassAssignmentSchema = new mongoose.Schema({
     title: {
         type: String,
-        required: [true, 'a assignment must title'],
+        required: [true, 'an assignment must title'],
     },
-    assignment: {
+    grade: {
         type: Number,
-        required: [true, 'a assignment not null'],
+        required: [true, 'an assignment grade must not be null'],
     },
     class: {
         type: mongoose.SchemaTypes.ObjectId,
