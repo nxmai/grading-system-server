@@ -57,4 +57,58 @@ export const classUser = [
     },
 ];
 
+export const gradeAssi = [
+    {
+        classStudentId: "61c19a71f8b1e46d2b946200",
+        classAssignment: "61c19481003e70393277de0f",
+        score: 10,
+    },
+    {
+        classStudentId: "61c19a71f8b1e46d2b946204",
+        classAssignment: "61c19481003e70393277de0f",
+        score: 9,
+    },
+    {
+        classStudentId: "61c19a71f8b1e46d2b946201",
+        classAssignment: "61c19481003e70393277de0f",
+        score: 8,
+    },
+    // {
+    //     classStudentId: "61c19a71f8b1e46d2b946202",
+    //     classAssignment: "61c193f4003e70393277dde0",
+    //     score: 7
+    // },
+    // {
+    //     classStudentId: "61c19a71f8b1e46d2b946203",
+    //     classAssignment: "61c193f4003e70393277dde0",
+    //     score: 6,
+    // },
+    {
+        classStudentId: "61c19a71f8b1e46d2b946200",
+        classAssignment: "61c19487003e70393277de17",
+        score: 10,
+    },
+    // {
+    //     classStudentId: "61c19a71f8b1e46d2b946204",
+    //     classAssignment: "61c19487003e70393277de17",
+    //     score: 9,
+    // },
+    // {
+    //     classStudentId: "61c19a71f8b1e46d2b946201",
+    //     classAssignment: "61c19487003e70393277de17",
+    //     score: 8,
+    // },
+    {
+        classStudentId: "61c19a71f8b1e46d2b946202",
+        classAssignment: "61c19487003e70393277de17",
+        score: 7,
+    },
+    {
+        classStudentId: "61c19a71f8b1e46d2b946203",
+        classAssignment: "61c19487003e70393277de17",
+        score: 6,
+    },
+];
+
+
 // export default classes;

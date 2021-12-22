@@ -40,8 +40,8 @@ import {
     downloadTemplateScoreByAssignmentId,
     downloadFullScoreByClassId,
     updateClassScoreById,
-    markReturnedByAssignmentId
-
+    markReturnedByAssignmentId,
+    getAssignmentsScoreByClassId
 } from './classScore/classScoreCtrl.js';
 
 // one class has ONLY one link invite
@@ -76,5 +76,6 @@ router.put('/:classId/score/:assignmentId/update/:scoreId', checkTeacherClass, u
 router.put('/:classId/score/:assignmentId/mark-returned-all', checkTeacherClass, markReturnedByAssignmentId);
 router.post('/:classId/score/:assignmentId/upload/', checkTeacherClass, upload.single('file'), uploadScoreByAssignmentId);
 router.get('/:classId/score/:assignmentId/download/', checkTeacherClass, downloadTemplateScoreByAssignmentId);
+router.get('/:classId/score', checkTeacherClass, getAssignmentsScoreByClassId);
 
 export default router;

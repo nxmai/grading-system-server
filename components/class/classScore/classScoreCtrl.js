@@ -9,6 +9,7 @@ import sendResponse from "../../../utils/sendResponse.js";
 
 import ClassStudentIdModel from "./classStudentIdModel.js";
 import ClassAssignmentModel from '../classAssignment/classAssignmentModel.js';
+import ClassScoreModel from "../classScore/classScoreModel.js";
 
 export const uploadStudentList = catchAsync( async function(req, res, next){
     const classId = req.classUser.class._id;
@@ -140,6 +141,14 @@ export const markReturnedByAssignmentId = catchAsync( async function(req, res, n
      * mark all score in assignment is returned
      */
     return sendResponse( null, 200, res );
+});
+
+//get all score of all assignment of a class
+export const getAssignmentsScoreByClassId = catchAsync( async function(req, res, next){
+    const classId = req.params.classId;
+
+    const assignmentsScore = await ClassScoreModel.find({class: classId});
+    return res.json(assignmentsScore);
 });
 
 export const upload = multer({ dest: "./uploads/" });

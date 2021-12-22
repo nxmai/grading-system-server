@@ -1,11 +1,12 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import {classes, user, classUser} from './dummy.js';
+import {classes, user, classUser, gradeAssi} from './dummy.js';
 import connectDB from './configData.js';
-import Class from '../components/class/classModel.js';
-import User from "../components/user/userModel.js";
-import ClassUser from "../components/class/classUserModel.js";
+// import Class from '../components/class/classModel.js';
+// import User from "../components/user/userModel.js";
+// import ClassUser from "../components/class/classUserModel.js";
+import ClassScoreModel from "../components/class/classScore/classScoreModel.js";
 
 connectDB();
 
@@ -17,8 +18,11 @@ const importData = async() => {
         // await User.deleteMany();
         // await User.insertMany(user);
 
-        await ClassUser.deleteMany();
-        await ClassUser.insertMany(classUser);
+        // await ClassUser.deleteMany();
+        // await ClassUser.insertMany(classUser);
+
+        await ClassScoreModel.deleteMany();
+        await ClassScoreModel.insertMany(gradeAssi);
 
         console.log('Data import success');
         process.exit();
