@@ -67,7 +67,47 @@ export const downloadFullScoreByClassId = catchAsync( async function(req, res, n
      * download to csv file
      * get all board return
      */
-    return sendResponse( null, 200, res );
+
+    const classId = req.classUser.class._id;
+    if (!classId) return new AppError('class not found', 404);
+
+    const studentList = await ClassStudentIdModel.find({
+        class: classId
+    });
+    const assignments = await ClassAssignmentModel.find({
+        class: classId
+    })
+
+    const scores = [];
+    assignments.forEach(async e => {
+        const asScore = await ClassScoreModel.find({ classAssignment: e.id});
+        scores.push(asScore);
+    })
+
+    let data = assignments.map(e=>e.title);
+    data.push("ava");
+    let dataStr = data.join(',') + '\n';
+    studentList.forEach(e => {
+        let sum = 0;
+        let strTemp = '';
+        scores.forEach((e2, i)=>{
+            e2.forEach(e3 => {if (e3.classStudentId == e.id) {
+                sum += e3.score * assignments[i].grade/10;
+                strTemp += `${e3.score},`
+            }  })
+        })
+        strTemp += `${sum}\n`;
+        dataStr += strTemp;
+    })
+
+    // write and return file
+    const randomStr = nanoid();
+    const fileName = `full_score_of_class_${classId}_no_${randomStr}.csv`;
+    const writeStream = fs.createWriteStream('tempt/'+ fileName);
+    writeStream.write(dataStr, ()=>{
+        // TODO : save file name to dtabase
+        return res.download('tempt/' + fileName);
+    });
 });
 
 export const updateClassScoreById = catchAsync( async function(req, res, next){
@@ -95,8 +135,7 @@ export const downloadTemplateScoreByAssignmentId = catchAsync( async function(re
     // get student in class
     const listStudentOfClass = await ClassStudentIdModel.find({class: classId});
     // mapping data in score
-    const listStudentHadScoreOfGrade = await ClassAssignmentModel.find({ classAssignment: classAssignmentId});
-
+    const listStudentHadScoreOfGrade = await ClassScoreModel.find({ classAssignment: classAssignmentId});
     // convert to csv
 
     // loop data element for writing data into file
@@ -104,7 +143,7 @@ export const downloadTemplateScoreByAssignmentId = catchAsync( async function(re
     let dataStr = data.join(',') + '\n';
     listStudentOfClass.forEach(e => {
         let score = ' ';
-        const index = listStudentHadScoreOfGrade.findIndex(e2=> e2.classStudentId == e._id);
+        const index = listStudentHadScoreOfGrade.findIndex(e2=> e2.classStudentId == e.id);
         if (index !== -1 ) {
             const stu = listStudentHadScoreOfGrade[index];
             score = `${stu.score}`;
@@ -131,7 +170,7 @@ export const createClassScore = catchAsync( async function(req, res, next){
     if (!classId) return new AppError('class not found', 404);
     const classAssignmentId = req.params.assignmentId;
     if (!classAssignmentId) return new AppError('assignment not found', 404);
-    
+
     const resp = await ClassScoreModel.create({...req.body});
     return sendResponse( resp, 201, res );
 });
