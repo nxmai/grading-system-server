@@ -132,7 +132,7 @@ export const createClassScore = catchAsync( async function(req, res, next){
     const classAssignmentId = req.params.assignmentId;
     if (!classAssignmentId) return new AppError('assignment not found', 404);
     
-    const resp = await ClassStudentIdModel.create({...res.body});
+    const resp = await ClassScoreModel.create({...req.body});
     return sendResponse( resp, 201, res );
 });
 
