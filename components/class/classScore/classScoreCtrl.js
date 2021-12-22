@@ -9,7 +9,7 @@ import sendResponse from "../../../utils/sendResponse.js";
 
 import ClassStudentIdModel from "./classStudentIdModel.js";
 import ClassAssignmentModel from '../classAssignment/classAssignmentModel.js';
-import ClassScoreModel from "../classScore/classScoreModel.js";
+import ClassScoreModel from "./classScoreModel.js";
 
 export const uploadStudentList = catchAsync( async function(req, res, next){
     const classId = req.classUser.class._id;
@@ -81,7 +81,6 @@ export const updateClassScoreById = catchAsync( async function(req, res, next){
 });
 
 export const downloadTemplateScoreByAssignmentId = catchAsync( async function(req, res, next){
-    // TODO
     /**
      * download score template of one assignment
      * in board -> it is one column
@@ -99,9 +98,18 @@ export const downloadTemplateScoreByAssignmentId = catchAsync( async function(re
     // convert to csv
 
     // loop data element for writing data into file
-    // this is for demo
-    const data = ['name', 'student_id', 'score'];
-    const dataStr = data.join(',') + '\n';
+    const data = ['student_id', 'score'];
+    let dataStr = data.join(',') + '\n';
+    listStudentOfClass.forEach(e => {
+        let score = ' ';
+        const index = listStudentHadScoreOfGrade.findIndex(e2=> e2.classStudentId == e._id);
+        if (index !== -1 ) {
+            const stu = listStudentHadScoreOfGrade[index];
+            score = `${stu.score}`;
+        }
+        const dta = [`${e.studentId}`, `${score}`];
+        dataStr += dta.join(',') + '\n';
+    })
 
     // write and return file
     const randomStr = nanoid();
@@ -118,6 +126,10 @@ export const uploadScoreByAssignmentId = catchAsync( async function(req, res, ne
     /**
      * create or update score of classStudent
      */
+    const classId = req.classUser.class._id;
+    if (!classId) return new AppError('class not found', 404);
+    const classAssignmentId = req.params.assignmentId;
+    if (!classAssignmentId) return new AppError('assignment not found', 404);
 
     // check file exist
     const filePath = req.file.path;
@@ -129,10 +141,36 @@ export const uploadScoreByAssignmentId = catchAsync( async function(req, res, ne
         columns: true,
         skip_empty_lines: true
     });
+
     // process
-    console.log("processing ...");
-    console.log(records);
-    return sendResponse( records, 201, res );
+    // get classStudentId
+    const listStudentOfClass = await ClassStudentIdModel.find({class: classId});
+
+    let recordsUpdate = [];
+    records.forEach(e => {
+        const indexClass = listStudentOfClass.findIndex(e2 => e2.studentId == e.student_id);
+        if (indexClass == -1) return;
+        const studentId_id = listStudentOfClass[indexClass].id;
+        recordsUpdate.push({
+            classStudentId: studentId_id,
+            classAssignment: classAssignmentId,
+            score: e.score
+        })
+    })
+
+    await ClassScoreModel.bulkWrite(
+        recordsUpdate.map((stuScore) => 
+          ({
+            updateOne: {
+              filter: { classStudentId : stuScore.classStudentId },
+              update: { $set: stuScore },
+              upsert: true
+            }
+          })
+        )
+    );
+
+    return sendResponse( null, 201, res );
 });
 
 export const markReturnedByAssignmentId = catchAsync( async function(req, res, next){
