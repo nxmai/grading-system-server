@@ -77,7 +77,9 @@ export const updateClassScoreById = catchAsync( async function(req, res, next){
      * update returned
      * update score-draft
      */
-    return sendResponse( null, 200, res );
+    const scoreId = req.params.scoreId;
+    const scoreStudent = await ClassScoreModel.findByIdAndUpdate(scoreId, req.body);
+    return sendResponse( scoreStudent, 200, res );
 });
 
 export const downloadTemplateScoreByAssignmentId = catchAsync( async function(req, res, next){
@@ -178,6 +180,16 @@ export const markReturnedByAssignmentId = catchAsync( async function(req, res, n
     /**
      * mark all score in assignment is returned
      */
+    const classId = req.classUser.class._id;
+    if (!classId) return new AppError('class not found', 404);
+    const classAssignmentId = req.params.assignmentId;
+    if (!classAssignmentId) return new AppError('assignment not found', 404);
+
+    await ClassScoreModel.updateMany({
+        classAssignment: classAssignmentId
+    }, {
+        isReturned: true
+    })
     return sendResponse( null, 200, res );
 });
 
