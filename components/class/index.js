@@ -39,6 +39,7 @@ import {
     uploadScoreByAssignmentId,
     downloadTemplateScoreByAssignmentId,
     downloadFullScoreByClassId,
+    createClassScore,
     updateClassScoreById,
     markReturnedByAssignmentId,
     getAssignmentsScoreByClassId
@@ -72,6 +73,7 @@ router.get('/:classId/score/student/file', checkTeacherClass, downloadTemplateSt
 router.get('/:classId/score/student/', checkTeacherClass, getStudentScoreByClassId);
 router.post('/:classId/score/student/file', checkTeacherClass, upload.single('file'), uploadStudentList);
 router.get('/:classId/score/full/file', checkTeacherClass, downloadFullScoreByClassId);
+router.post('/:classId/score/:assignmentId/score/', checkTeacherClass, createClassScore);
 router.put('/:classId/score/:assignmentId/update/:scoreId', checkTeacherClass, updateClassScoreById);
 router.put('/:classId/score/:assignmentId/mark-returned-all', checkTeacherClass, markReturnedByAssignmentId);
 router.post('/:classId/score/:assignmentId/upload/', checkTeacherClass, upload.single('file'), uploadScoreByAssignmentId);

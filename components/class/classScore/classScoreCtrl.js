@@ -122,11 +122,25 @@ export const downloadTemplateScoreByAssignmentId = catchAsync( async function(re
         return res.download('tempt/' + fileName);
     });
 });
+export const createClassScore = catchAsync( async function(req, res, next){
+    // TODO
+    /**
+     * create score of classStudent
+     */
+    const classId = req.classUser.class._id;
+    if (!classId) return new AppError('class not found', 404);
+    const classAssignmentId = req.params.assignmentId;
+    if (!classAssignmentId) return new AppError('assignment not found', 404);
+    
+    const resp = await ClassStudentIdModel.create({...res.body});
+    return sendResponse( resp, 201, res );
+});
 
 export const uploadScoreByAssignmentId = catchAsync( async function(req, res, next){
     // TODO
     /**
      * create or update score of classStudent
+     * check -> dont update classAssignmentId, classStudentId
      */
     const classId = req.classUser.class._id;
     if (!classId) return new AppError('class not found', 404);
