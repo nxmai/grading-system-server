@@ -42,7 +42,8 @@ import {
     createClassScore,
     updateClassScoreById,
     markReturnedByAssignmentId,
-    getAssignmentsScoreByClassId
+    getAssignmentsScoreByClassId,
+    getAssignmentsScoreByClassIdByStudentId
 } from './classScore/classScoreCtrl.js';
 
 // one class has ONLY one link invite
@@ -69,15 +70,20 @@ router.get('/:classId', checkJoinedClass, getClassById);
 router.get('/:classId/people/teacher', checkJoinedClass, getTeacherOfClass);
 router.get('/:classId/people/student', checkJoinedClass, getStudentOfClass);
 
-router.get('/:classId/score/student/file', checkTeacherClass, downloadTemplateStudentList);
-router.get('/:classId/score/student/', checkTeacherClass, getStudentScoreByClassId);
-router.post('/:classId/score/student/file', checkTeacherClass, upload.single('file'), uploadStudentList);
+router.route('/:classId/score/student/file')
+    .get(checkTeacherClass, downloadTemplateStudentList)
+    .post(checkTeacherClass, upload.single('file'), uploadStudentList);
+router.get('/:classId/score/student/list', checkTeacherClass, getStudentScoreByClassId);
+router.get('/:classId/score/student/:studentIdId', checkTeacherClass, getAssignmentsScoreByClassIdByStudentId);
+
 router.get('/:classId/score/full/file', checkTeacherClass, downloadFullScoreByClassId);
-router.post('/:classId/score/:assignmentId/score/', checkTeacherClass, createClassScore);
-router.put('/:classId/score/:assignmentId/update/:scoreId', checkTeacherClass, updateClassScoreById);
-router.put('/:classId/score/:assignmentId/mark-returned-all', checkTeacherClass, markReturnedByAssignmentId);
-router.post('/:classId/score/:assignmentId/upload/', checkTeacherClass, upload.single('file'), uploadScoreByAssignmentId);
-router.get('/:classId/score/:assignmentId/download/', checkTeacherClass, downloadTemplateScoreByAssignmentId);
-router.get('/:classId/score', checkTeacherClass, getAssignmentsScoreByClassId);
+router.get('/:classId/score/full/score', checkTeacherClass, getAssignmentsScoreByClassId);
+
+router.put('/:classId/score/class-score/assignment/:assignmentId/mark-returned-all', checkTeacherClass, markReturnedByAssignmentId);
+router.route('/:classId/score/class-score/assignment/:assignmentId/file')
+    .get(checkTeacherClass, downloadTemplateScoreByAssignmentId)
+    .post(checkTeacherClass, upload.single('file'), uploadScoreByAssignmentId);
+router.post('/:classId/score/class-score/', checkTeacherClass, createClassScore);
+router.put('/:classId/score/class-score/:scoreId', checkTeacherClass, updateClassScoreById);
 
 export default router;

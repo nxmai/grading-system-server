@@ -74,29 +74,33 @@ export const downloadFullScoreByClassId = catchAsync( async function(req, res, n
     const studentList = await ClassStudentIdModel.find({
         class: classId
     });
-    const assignments = await ClassAssignmentModel.find({
-        class: classId
+
+    const assignments = await ClassAssignmentModel.find({ class: classId }).sort("order");
+    const assignmentsIds = assignments.map(e=>e._id);
+    
+    const scores = await ClassScoreModel.find({
+        classAssignment: {
+            $in: assignmentsIds
+        },
     })
 
-    const scores = [];
-    assignments.forEach(async e => {
-        const asScore = await ClassScoreModel.find({ classAssignment: e.id});
-        scores.push(asScore);
-    })
+    let data = ['student_id'];
+    data = [...data, ...assignments.map(e=> e.title), 'ava'];
 
-    let data = assignments.map(e=>e.title);
-    data.push("ava");
     let dataStr = data.join(',') + '\n';
-    studentList.forEach(e => {
-        let sum = 0;
-        let strTemp = '';
-        scores.forEach((e2, i)=>{
-            e2.forEach(e3 => {if (e3.classStudentId == e.id) {
-                sum += e3.score * assignments[i].grade/10;
-                strTemp += `${e3.score},`
-            }  })
-        })
-        strTemp += `${sum}\n`;
+    studentList.forEach(student => {
+        const scoreOfStudent = scores.filter(e => e.classStudentId == student.id);
+        let avarage = 0;
+        const dataRow = assignments.map((ass, i)=>{
+            const index = scoreOfStudent.findIndex(e=> e.classAssignment == ass.id);
+            if (index == -1) return ' ';
+            const e = scoreOfStudent[index];
+            avarage += (e.score ?? 0) /10*ass.grade;
+            return `${e.score}`;
+        });
+        dataRow.unshift(student.studentId);
+        dataRow.push(`${avarage}`);
+        let strTemp = dataRow.join(',') + '\n';
         dataStr += strTemp;
     })
 
@@ -168,8 +172,6 @@ export const createClassScore = catchAsync( async function(req, res, next){
      */
     const classId = req.classUser.class._id;
     if (!classId) return new AppError('class not found', 404);
-    const classAssignmentId = req.params.assignmentId;
-    if (!classAssignmentId) return new AppError('assignment not found', 404);
 
     const resp = await ClassScoreModel.create({...req.body});
     return sendResponse( resp, 201, res );
@@ -246,12 +248,60 @@ export const markReturnedByAssignmentId = catchAsync( async function(req, res, n
     return sendResponse( null, 200, res );
 });
 
-//get all score of all assignment of a class
 export const getAssignmentsScoreByClassId = catchAsync( async function(req, res, next){
     const classId = req.params.classId;
+    if (!classId) return new AppError('class not found', 404);
 
-    const assignmentsScore = await ClassScoreModel.find({class: classId});
+    const assignments = await ClassAssignmentModel.find({ class: classId }).sort("order");
+    const assignmentsIds = assignments.map((e)=>e.id);
+
+    const assignmentsScore = await ClassScoreModel.find({classAssignment: {
+        $in: assignmentsIds
+    }}).populate('classAssignment');
+
     return res.json(assignmentsScore);
+});
+
+export const getAssignmentsScoreByClassIdByStudentId = catchAsync( async function(req, res, next){
+    const classId = req.params.classId;
+    if (!classId) return new AppError('class not found', 404);
+    const studentIdId = req.params.studentIdId;
+    if (!studentIdId) return new AppError('studentId not found', 404);
+
+    const assignments = await ClassAssignmentModel.find({ class: classId }).sort("order");
+    const assignmentsIds = assignments.map((e)=>e.id);
+
+    const assignmentsScoreData = await ClassScoreModel.find(
+        {
+            classAssignment: {
+                $in: assignmentsIds
+            },
+            classStudentId: studentIdId
+    }).populate('classAssignment');
+
+    let avarage = 0;
+
+    const data = assignments.map(ele=> {
+        const index = assignmentsScoreData.findIndex(e=> e.classAssignment.id == ele.id);
+        if (index == -1) return {
+            _id: '',
+            id: '',
+            classStudentId: studentIdId,
+            classAssignment: ele,
+            score: 0,
+            scoreDraft: 0,
+            isReturned: false,
+        };
+        const e = assignmentsScoreData[index];
+        avarage += (e.score ?? 0) /10*e.classAssignment.grade;
+        return e;
+    });
+
+    const assignmentsScoreResp = {
+        assignmentsScore: data,
+        avarage: avarage
+    };
+    return res.json(assignmentsScoreResp);
 });
 
 export const upload = multer({ dest: "./uploads/" });
