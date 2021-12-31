@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import { checkTeacherClass, checkJoinedClass } from "./classService.js";
+import { checkTeacherClass, checkJoinedClass, checkTeacherAndStudentInClass } from "./classService.js";
 
 import {
     getClasses, 
@@ -56,7 +56,7 @@ router.put('/:classId/invite-link', checkTeacherClass, updateInviteLinkByClassID
 router.post('/:classId/invite-link/:inviteLinkId/invite', checkTeacherClass, createInviteSendMail); // invite teacher/student with send email
 router.delete('/:classId/invite-link/:inviteLinkId/invite/:inviteUserClassId', checkTeacherClass, deleteInvite); // delete teacher invite
 
-router.get('/:classId/assignment', checkTeacherClass, getAssignmentByClassId);
+router.get('/:classId/assignment', checkTeacherAndStudentInClass, getAssignmentByClassId);
 router.post('/:classId/assignment', checkTeacherClass, createAssignment);
 router.patch('/:classId/assignment/order', checkTeacherClass, updateOrderAssignment);
 // router.get('/:classId/assignment/:id',);

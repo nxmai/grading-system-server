@@ -34,3 +34,20 @@ export async function checkJoinedClass(req, res, next) {
         return res.status(404).json({ message: error.message });
     }
 }
+
+export async function checkTeacherAndStudentInClass(req, res, next) {
+    try {
+        const classId = req.params.classId;
+        const userId = req.user._id;
+        const userClass = await classUserModel.findOne({
+            class: classId,
+            user: userId,
+        })
+        if (!userClass) throw Error("user not in class");
+        if (userClass.role !== EnumUserRoll.TEACHER && userClass.role !== EnumUserRoll.STUDENT) throw Error("permission deny");
+        req.classUser = userClass;
+        return next();
+    } catch (error) {
+        return res.status(404).json({ message: error.message });
+    }
+}
