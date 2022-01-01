@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import { checkTeacherClass, checkJoinedClass, checkTeacherAndStudentInClass } from "./classService.js";
+import { checkTeacherClass, checkJoinedClass, checkTeacherAndStudentInClass, checkStudentInClass } from "./classService.js";
 
 import {
     getClasses, 
@@ -34,7 +34,7 @@ import {
 import {
     upload,
     downloadTemplateStudentList,
-    getStudentScoreByClassId,
+    getStudentByClassId,
     uploadStudentList,
     uploadScoreByAssignmentId,
     downloadTemplateScoreByAssignmentId,
@@ -45,6 +45,10 @@ import {
     getAssignmentsScoreByClassId,
     getAssignmentsScoreByClassIdByStudentId
 } from './classScore/classScoreCtrl.js';
+
+import {
+    createAssignmentReviewRequest
+} from './classAssignment/assignmentReview/assignmentReivewCtrl.js';
 
 // one class has ONLY one link invite
 router.post('/approve/:inviteLink', approveInvite) // approve this usser
@@ -73,7 +77,7 @@ router.get('/:classId/people/student', checkJoinedClass, getStudentOfClass);
 router.route('/:classId/score/student/file')
     .get(checkTeacherClass, downloadTemplateStudentList)
     .post(checkTeacherClass, upload.single('file'), uploadStudentList);
-router.get('/:classId/score/student/list', checkTeacherClass, getStudentScoreByClassId);
+router.get('/:classId/score/student/list', checkTeacherClass, getStudentByClassId);
 router.get('/:classId/score/student/:studentIdId', checkTeacherClass, getAssignmentsScoreByClassIdByStudentId);
 
 router.get('/:classId/score/full/file', checkTeacherClass, downloadFullScoreByClassId);
@@ -83,7 +87,13 @@ router.put('/:classId/score/class-score/assignment/:assignmentId/mark-returned-a
 router.route('/:classId/score/class-score/assignment/:assignmentId/file')
     .get(checkTeacherClass, downloadTemplateScoreByAssignmentId)
     .post(checkTeacherClass, upload.single('file'), uploadScoreByAssignmentId);
+
 router.post('/:classId/score/class-score/', checkTeacherClass, createClassScore);
 router.put('/:classId/score/class-score/:scoreId', checkTeacherClass, updateClassScoreById);
+router.post('/:classId/score/class-score/draft', checkTeacherClass, createClassScore);
+router.put('/:classId/score/class-score/draft/:scoreId', checkTeacherClass, updateClassScoreById);
+
+router.post('/:classId/review/request', checkStudentInClass, createAssignmentReviewRequest);
+// router.get('/:classId/review/request', checkStudentInClass, createAssignmentReviewRequest);
 
 export default router;

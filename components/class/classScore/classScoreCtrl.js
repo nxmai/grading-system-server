@@ -38,7 +38,7 @@ export const uploadStudentList = catchAsync( async function(req, res, next){
     return sendResponse( resp, 200, res );
 });
 
-export const getStudentScoreByClassId = catchAsync( async function(req, res, next) {
+export const getStudentByClassId = catchAsync( async function(req, res, next) {
     const classId = req.classUser.class._id;
     if (!classId) return new AppError('class not found', 404);
 
@@ -114,18 +114,6 @@ export const downloadFullScoreByClassId = catchAsync( async function(req, res, n
     });
 });
 
-export const updateClassScoreById = catchAsync( async function(req, res, next){
-    // TODO
-    /**
-     * update specifi score
-     * update returned
-     * update score-draft
-     */
-    const scoreId = req.params.scoreId;
-    const scoreStudent = await ClassScoreModel.findByIdAndUpdate(scoreId, req.body);
-    return sendResponse( scoreStudent, 200, res );
-});
-
 export const downloadTemplateScoreByAssignmentId = catchAsync( async function(req, res, next){
     /**
      * download score template of one assignment
@@ -175,6 +163,18 @@ export const createClassScore = catchAsync( async function(req, res, next){
 
     const resp = await ClassScoreModel.create({...req.body});
     return sendResponse( resp, 201, res );
+});
+
+export const updateClassScoreById = catchAsync( async function(req, res, next){
+    // TODO
+    /**
+     * update specifi score
+     * update returned
+     * update score-draft
+     */
+    const scoreId = req.params.scoreId;
+    const scoreStudent = await ClassScoreModel.findByIdAndUpdate(scoreId, req.body);
+    return sendResponse( scoreStudent, 200, res );
 });
 
 export const uploadScoreByAssignmentId = catchAsync( async function(req, res, next){
