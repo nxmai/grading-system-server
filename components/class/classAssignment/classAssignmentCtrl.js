@@ -88,3 +88,10 @@ export const deleteAssignmentById = async function(req, res, next) {
     const assignment = await AssignmentModel.findByIdAndDelete(id);
     return res.json(assignment);
 };
+
+export const getAssignmentByAssignmentId = async function(req, res, next) {
+    const id = req.params.id;
+
+    const assignment = await AssignmentModel.findById(id);
+    return res.json(assignment);
+};

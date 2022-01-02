@@ -11,6 +11,8 @@ import ClassStudentIdModel from "./classStudentIdModel.js";
 import ClassAssignmentModel from '../classAssignment/classAssignmentModel.js';
 import ClassScoreModel from "./classScoreModel.js";
 
+import UserModel from "../../user/userModel.js";
+
 export const uploadStudentList = catchAsync( async function(req, res, next){
     const classId = req.classUser.class._id;
     if (!classId) return new AppError('class not found', 404);
@@ -262,7 +264,7 @@ export const getAssignmentsScoreByClassId = catchAsync( async function(req, res,
     return res.json(assignmentsScore);
 });
 
-export const getAssignmentsScoreByClassIdByStudentId = catchAsync( async function(req, res, next){
+export const getAssignmentsScoreByClassIdByStudentIdAndCountTotal = catchAsync( async function(req, res, next){
     const classId = req.params.classId;
     if (!classId) return new AppError('class not found', 404);
     const studentIdId = req.params.studentIdId;
@@ -302,6 +304,29 @@ export const getAssignmentsScoreByClassIdByStudentId = catchAsync( async functio
         avarage: avarage
     };
     return res.json(assignmentsScoreResp);
+});
+
+export const getAssignmentsScoreByClassIdAndStudentId = catchAsync( async function(req, res, next){
+    const classId = req.params.classId;
+    if (!classId) return new AppError('class not found', 404);
+
+    const user = await UserModel.findById(req.classUser.user._id);
+    const studentId = user.studentCardID;
+
+    const classStudent = await ClassStudentIdModel.findOne({
+        class: classId,
+        studentId: studentId,
+    });
+
+    const classStudentId = classStudent._id;
+    const classAssignmentId = req.params.assignmentId;
+
+    const assignmentsScoreData = await ClassScoreModel.findOne({
+            classAssignment: classAssignmentId,
+            classStudentId: classStudentId
+    });
+
+    return res.json(assignmentsScoreData);
 });
 
 export const upload = multer({ dest: "./uploads/" });

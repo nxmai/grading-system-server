@@ -26,6 +26,7 @@ import {
 import {
     createAssignment,
     getAssignmentByClassId,
+    getAssignmentByAssignmentId,
     updateOrderAssignment,
     updateAssignmentById,
     deleteAssignmentById,
@@ -43,11 +44,13 @@ import {
     updateClassScoreById,
     markReturnedByAssignmentId,
     getAssignmentsScoreByClassId,
-    getAssignmentsScoreByClassIdByStudentId
+    getAssignmentsScoreByClassIdByStudentIdAndCountTotal,
+    getAssignmentsScoreByClassIdAndStudentId
 } from './classScore/classScoreCtrl.js';
 
 import {
-    createAssignmentReviewRequest
+    createAssignmentReviewRequest,
+    getOneAssignmentReviewRequest,
 } from './classAssignment/assignmentReview/assignmentReivewCtrl.js';
 
 // one class has ONLY one link invite
@@ -63,7 +66,7 @@ router.delete('/:classId/invite-link/:inviteLinkId/invite/:inviteUserClassId', c
 router.get('/:classId/assignment', checkTeacherAndStudentInClass, getAssignmentByClassId);
 router.post('/:classId/assignment', checkTeacherClass, createAssignment);
 router.patch('/:classId/assignment/order', checkTeacherClass, updateOrderAssignment);
-// router.get('/:classId/assignment/:id',);
+router.get('/:classId/assignment/:id', checkTeacherAndStudentInClass, getAssignmentByAssignmentId);
 router.put('/:classId/assignment/:id', checkTeacherClass, updateAssignmentById);
 router.delete('/:classId/assignment/:id', checkTeacherClass, deleteAssignmentById);
 
@@ -78,7 +81,7 @@ router.route('/:classId/score/student/file')
     .get(checkTeacherClass, downloadTemplateStudentList)
     .post(checkTeacherClass, upload.single('file'), uploadStudentList);
 router.get('/:classId/score/student/list', checkTeacherClass, getStudentByClassId);
-router.get('/:classId/score/student/:studentIdId', checkTeacherClass, getAssignmentsScoreByClassIdByStudentId);
+router.get('/:classId/score/student/:studentIdId', checkTeacherClass, getAssignmentsScoreByClassIdByStudentIdAndCountTotal);
 
 router.get('/:classId/score/full/file', checkTeacherClass, downloadFullScoreByClassId);
 router.get('/:classId/score/full/score', checkTeacherClass, getAssignmentsScoreByClassId);
@@ -88,12 +91,14 @@ router.route('/:classId/score/class-score/assignment/:assignmentId/file')
     .get(checkTeacherClass, downloadTemplateScoreByAssignmentId)
     .post(checkTeacherClass, upload.single('file'), uploadScoreByAssignmentId);
 
+router.get('/:classId/score/class-score/assignment/:assignmentId/student', checkStudentInClass, getAssignmentsScoreByClassIdAndStudentId);
+
 router.post('/:classId/score/class-score/', checkTeacherClass, createClassScore);
 router.put('/:classId/score/class-score/:scoreId', checkTeacherClass, updateClassScoreById);
 router.post('/:classId/score/class-score/draft', checkTeacherClass, createClassScore);
 router.put('/:classId/score/class-score/draft/:scoreId', checkTeacherClass, updateClassScoreById);
 
 router.post('/:classId/review/request', checkStudentInClass, createAssignmentReviewRequest);
-// router.get('/:classId/review/request', checkStudentInClass, createAssignmentReviewRequest);
+router.get('/:classId/review/request/:assignmentId', checkStudentInClass, getOneAssignmentReviewRequest);
 
 export default router;
