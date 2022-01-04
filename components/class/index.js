@@ -50,7 +50,9 @@ import {
 
 import {
     createAssignmentReviewRequest,
-    getOneAssignmentReviewRequest,
+    getOneAssignmentReviewRequestForStudent,
+    getAllReviewRequestsInOneAssignment,
+    getOneAssignmentReviewRequestForTeacher
 } from './classAssignment/assignmentReview/assignmentReivewCtrl.js';
 
 // one class has ONLY one link invite
@@ -99,6 +101,8 @@ router.post('/:classId/score/class-score/draft', checkTeacherClass, createClassS
 router.put('/:classId/score/class-score/draft/:scoreId', checkTeacherClass, updateClassScoreById);
 
 router.post('/:classId/review/request', checkStudentInClass, createAssignmentReviewRequest);
-router.get('/:classId/review/request/:assignmentId', checkStudentInClass, getOneAssignmentReviewRequest);
+router.get('/:classId/review/request/:assignmentId', checkStudentInClass, getOneAssignmentReviewRequestForStudent);
+router.get('/:classId/review/request/:assignmentId/get-all', checkTeacherClass, getAllReviewRequestsInOneAssignment);
+router.get('/:classId/review/request/:assignmentId/get-one/:classStudentId', checkTeacherClass, getOneAssignmentReviewRequestForTeacher);
 
 export default router;

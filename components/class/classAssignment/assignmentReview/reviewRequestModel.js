@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const reviewRequestSchema = new mongoose.Schema({
     classStudentId: {
         type: mongoose.SchemaTypes.ObjectId,
-        ref: 'classStudentId2',
+        ref: 'ClassStudentId2',
         required: [true, 'Review request must belong to one Student']
     },
     classAssignment: {

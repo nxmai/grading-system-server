@@ -39,7 +39,7 @@ export const createAssignmentReviewRequest = catchAsync(async function (
     return sendResponse(resp, 201, res);
 });
 
-export const getOneAssignmentReviewRequest = catchAsync(async function (
+export const getOneAssignmentReviewRequestForStudent = catchAsync(async function (
     req,
     res,
     next
@@ -64,4 +64,40 @@ export const getOneAssignmentReviewRequest = catchAsync(async function (
     })
 
     return sendResponse(existReviewRequest, 201, res);
+});
+
+export const getAllReviewRequestsInOneAssignment = catchAsync(async function (
+    req,
+    res,
+    next
+) {
+    const classId = req.classUser.class._id;
+    if (!classId) return new AppError("class not found", 404);
+
+    const classAssignmentId = req.params.assignmentId;
+
+    const reviewRequests = await ReviewRequestModel.find({
+        classAssignment: classAssignmentId
+    }).populate('classStudentId')
+
+    return sendResponse(reviewRequests, 201, res);
+});
+
+export const getOneAssignmentReviewRequestForTeacher = catchAsync(async function (
+    req,
+    res,
+    next
+) {
+    const classId = req.classUser.class._id;
+    if (!classId) return new AppError("class not found", 404);
+
+    const classAssignmentId = req.params.assignmentId;
+    const classStudentId = req.params.classStudentId;
+
+    const reviewRequests = await ReviewRequestModel.findOne({
+        classAssignment: classAssignmentId,
+        classStudentId: classStudentId
+    }).populate('classStudentId')
+
+    return sendResponse(reviewRequests, 201, res);
 });
