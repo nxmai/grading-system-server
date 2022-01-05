@@ -1,7 +1,9 @@
 import ReviewRequestModel from "./reviewRequestModel.js";
 import catchAsync from "../../../../utils/catchAsync.js";
 import UserModel from "../../../user/userModel.js";
+import RvChatModel from "./reviewChatModel.js";
 import classStudentIdModel from "../../classScore/classStudentIdModel.js";
+
 import sendResponse from "../../../../utils/sendResponse.js";
 import AppError from "../../../../utils/appError.js";
 
@@ -100,4 +102,31 @@ export const getOneAssignmentReviewRequest = catchAsync(async function (
     }).populate('classStudentId')
 
     return sendResponse(reviewRequests, 201, res);
+});
+
+export const getReviewChatByReviewRequestId = catchAsync( async function(req, res, next) {
+    const reviewRequestId = req.params.reviewRequestId;
+    const rvReq = await ReviewRequestModel.findById(reviewRequestId);
+    if (!rvReq) throw new AppError("review Request not found", 404);
+
+    const listChat = await RvChatModel.find({
+        reviewRequest: rvReq._id
+    }).sort('created_at');
+
+    return sendResponse(listChat, 200, res);
+});
+
+export const createReviewChat = catchAsync( async function(req, res, next) {
+    const reviewRequestId = req.params.reviewRequestId;
+    const rvReq = await ReviewRequestModel.findById(reviewRequestId);
+    if (!rvReq) throw new AppError("review Request not found", 404);
+    const content = req.body.content;
+
+    const rvChat = await RvChatModel.create({
+        user: req.user._id,
+        reviewRequest: rvReq._id,
+        content,
+    }).sort('created_at');
+
+    return sendResponse(rvChat, 200, res);
 });

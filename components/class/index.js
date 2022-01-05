@@ -54,7 +54,10 @@ import {
     createAssignmentReviewRequest,
     getOneAssignmentReviewRequestForStudent,
     getAllReviewRequestsInOneAssignment,
-    getOneAssignmentReviewRequest
+    getOneAssignmentReviewRequest,
+
+    getReviewChatByReviewRequestId,
+    createReviewChat
 } from './classAssignment/assignmentReview/assignmentReivewCtrl.js';
 
 // one class has ONLY one link invite
@@ -110,6 +113,8 @@ router.post('/:classId/review/request', checkStudentInClass, createAssignmentRev
 router.get('/:classId/review/request/:assignmentId', checkStudentInClass, getOneAssignmentReviewRequestForStudent);
 router.get('/:classId/review/request/:assignmentId/get-all', checkTeacherClass, getAllReviewRequestsInOneAssignment);
 router.get('/:classId/review/request/:assignmentId/get-one/:classStudentId', checkTeacherAndStudentInClass, getOneAssignmentReviewRequest);
-
+router.route('/:classId/review/request/:assignmentId/chat/:reviewRequestId')
+    .get(checkTeacherAndStudentInClass, getReviewChatByReviewRequestId)
+    .post(checkTeacherAndStudentInClass, createReviewChat)
 
 export default router;
