@@ -21,6 +21,7 @@ import {
     getTeacherOfClass,
     getStudentOfClass,
     getUserRoleByClassId,
+    getStudentClassId
 } from './classUser/classUserCtrl.js';
 
 import {
@@ -45,14 +46,14 @@ import {
     markReturnedByAssignmentId,
     getAssignmentsScoreByClassId,
     getAssignmentsScoreByClassIdByStudentIdAndCountTotal,
-    getAssignmentsScoreByClassIdAndStudentId
+    getAssignmentsScoreByClassStudentId
 } from './classScore/classScoreCtrl.js';
 
 import {
     createAssignmentReviewRequest,
     getOneAssignmentReviewRequestForStudent,
     getAllReviewRequestsInOneAssignment,
-    getOneAssignmentReviewRequestForTeacher
+    getOneAssignmentReviewRequest
 } from './classAssignment/assignmentReview/assignmentReivewCtrl.js';
 
 // one class has ONLY one link invite
@@ -93,16 +94,19 @@ router.route('/:classId/score/class-score/assignment/:assignmentId/file')
     .get(checkTeacherClass, downloadTemplateScoreByAssignmentId)
     .post(checkTeacherClass, upload.single('file'), uploadScoreByAssignmentId);
 
-router.get('/:classId/score/class-score/assignment/:assignmentId/student', checkStudentInClass, getAssignmentsScoreByClassIdAndStudentId);
+router.get('/:classId/score/class-score/assignment/:assignmentId/:classStudentId', checkTeacherAndStudentInClass, getAssignmentsScoreByClassStudentId);
 
 router.post('/:classId/score/class-score/', checkTeacherClass, createClassScore);
 router.put('/:classId/score/class-score/:scoreId', checkTeacherClass, updateClassScoreById);
 router.post('/:classId/score/class-score/draft', checkTeacherClass, createClassScore);
 router.put('/:classId/score/class-score/draft/:scoreId', checkTeacherClass, updateClassScoreById);
 
+router.get('/:classId/review/request/class-studentid', checkStudentInClass, getStudentClassId);
+
 router.post('/:classId/review/request', checkStudentInClass, createAssignmentReviewRequest);
 router.get('/:classId/review/request/:assignmentId', checkStudentInClass, getOneAssignmentReviewRequestForStudent);
 router.get('/:classId/review/request/:assignmentId/get-all', checkTeacherClass, getAllReviewRequestsInOneAssignment);
-router.get('/:classId/review/request/:assignmentId/get-one/:classStudentId', checkTeacherClass, getOneAssignmentReviewRequestForTeacher);
+router.get('/:classId/review/request/:assignmentId/get-one/:classStudentId', checkTeacherAndStudentInClass, getOneAssignmentReviewRequest);
+
 
 export default router;

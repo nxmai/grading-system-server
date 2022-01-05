@@ -83,7 +83,7 @@ export const getAllReviewRequestsInOneAssignment = catchAsync(async function (
     return sendResponse(reviewRequests, 201, res);
 });
 
-export const getOneAssignmentReviewRequestForTeacher = catchAsync(async function (
+export const getOneAssignmentReviewRequest = catchAsync(async function (
     req,
     res,
     next

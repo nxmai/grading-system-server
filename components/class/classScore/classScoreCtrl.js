@@ -306,19 +306,11 @@ export const getAssignmentsScoreByClassIdByStudentIdAndCountTotal = catchAsync( 
     return res.json(assignmentsScoreResp);
 });
 
-export const getAssignmentsScoreByClassIdAndStudentId = catchAsync( async function(req, res, next){
+export const getAssignmentsScoreByClassStudentId = catchAsync( async function(req, res, next){
     const classId = req.params.classId;
     if (!classId) return new AppError('class not found', 404);
 
-    const user = await UserModel.findById(req.classUser.user._id);
-    const studentId = user.studentCardID;
-
-    const classStudent = await ClassStudentIdModel.findOne({
-        class: classId,
-        studentId: studentId,
-    });
-
-    const classStudentId = classStudent._id;
+    const classStudentId = req.params.classStudentId;
     const classAssignmentId = req.params.assignmentId;
 
     const assignmentsScoreData = await ClassScoreModel.findOne({
