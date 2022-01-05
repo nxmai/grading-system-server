@@ -53,43 +53,39 @@ export const updateInviteLinkByClassID = async (req, res) => {
     }
 };
 
-export const approveInvite = async (req, res) => {
-    try {
-        const inviteLink = req.params.inviteLink;
-        const oneLink = await InviteClassLink.findOne({ linkText: inviteLink });
-        if (!oneLink) throw Error("not found this invite link for this class");
-        if (!oneLink.isActive) throw Error("this link not active");
+export const approveInvite = catchAsync( async (req, res) => {
+    const inviteLink = req.params.inviteLink;
+    const oneLink = await InviteClassLink.findOne({ linkText: inviteLink });
+    if (!oneLink) throw Error("not found this invite link for this class");
+    if (!oneLink.isActive) throw Error("this link not active");
 
-        // get user info
-        const user = req.user;
-        // find user in invite user class
-        const inviteWithRole = await InviteUserClass.findOne({
+    // get user info
+    const user = req.user;
+    // find user in invite user class
+    const inviteWithRole = await InviteUserClass.findOne({
+        email: user.email,
+        link: oneLink._id,
+    });
+    let inviteRoll = inviteWithRole ? inviteWithRole.role : EnumUserRoll.STUDENT;
+
+    // add user to classs
+    const result = new ClassUser({
+        class: oneLink.class,
+        user: user._id,
+        role: inviteRoll,
+    });
+    await result.save();
+
+    // delete user invite if
+    if (inviteWithRole) {
+        await InviteUserClass.deleteOne({
             email: user.email,
             link: oneLink._id,
         });
-        let inviteRoll = inviteWithRole ? inviteWithRole.role : EnumUserRoll.STUDENT;
-
-        // add user to classs
-        const result = new ClassUser({
-            class: oneLink.class,
-            user: user._id,
-            role: inviteRoll,
-        });
-        await result.save();
-
-        // delete user invite if
-        if (inviteWithRole) {
-            await InviteUserClass.deleteOne({
-                email: user.email,
-                link: oneLink._id,
-            });
-        }
-
-        return res.status(201).json(oneLink);
-    } catch (error) {
-        res.status(404).json({ message: error.message });
     }
-};
+
+    return sendResponse(oneLink, 200, res);
+});
 
 export const createInviteSendMail = async (req, res) => {
     try {
