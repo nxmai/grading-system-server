@@ -13,8 +13,9 @@ import {
     createInviteLink, 
     updateInviteLinkByClassID, 
     approveInvite, 
-    createInviteSendMail, 
-    deleteInvite
+    createInviteSendMail,
+    listInviteUserClassByInviteLinkText,
+    deleteInviteUser
 } from './classInviter/inciteClassCtrl.js';
 
 import {
@@ -63,7 +64,8 @@ router.post('/:classId/invite-link', checkTeacherClass, createInviteLink); // cr
 router.put('/:classId/invite-link', checkTeacherClass, updateInviteLinkByClassID); // update to deactive link
 
 router.post('/:classId/invite-link/:inviteLinkId/invite', checkTeacherClass, createInviteSendMail); // invite teacher/student with send email
-router.delete('/:classId/invite-link/:inviteLinkId/invite/:inviteUserClassId', checkTeacherClass, deleteInvite); // delete teacher invite
+router.get('/:classId/invite-link/:inviteLinkText/', checkTeacherClass, listInviteUserClassByInviteLinkText)
+router.delete('/:classId/invite-link/:inviteLinkId/invite/:inviteUserClassId', checkTeacherClass, deleteInviteUser); // delete teacher invite
 
 router.get('/:classId/assignment', checkTeacherAndStudentInClass, getAssignmentByClassId);
 router.post('/:classId/assignment', checkTeacherClass, createAssignment);
@@ -78,6 +80,7 @@ router.get('/:classId/role', checkJoinedClass, getUserRoleByClassId);
 router.get('/:classId', checkJoinedClass, getClassById);
 router.get('/:classId/people/teacher', checkJoinedClass, getTeacherOfClass);
 router.get('/:classId/people/student', checkJoinedClass, getStudentOfClass);
+// router.get('/:classId/people/invite', checkTeacherClass, getInviteUserClassByClassId);
 
 router.route('/:classId/score/student/file')
     .get(checkTeacherClass, downloadTemplateStudentList)

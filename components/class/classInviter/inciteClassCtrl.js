@@ -4,6 +4,10 @@ import ClassUser from "../classUser/classUserModel.js";
 import { EnumUserRoll } from "../classUser/userClassRollEnum.js";
 import { sendEmail } from "../../../utils/send_email.js"
 
+import AppError from "../../../utils/appError.js";
+import catchAsync from "../../../utils/catchAsync.js";
+import sendResponse from "../../../utils/sendResponse.js";
+
 export const getInviteLinkByClassID = async (req, res) => {
     try {
         const classId = req.params.classId;
@@ -87,21 +91,6 @@ export const approveInvite = async (req, res) => {
     }
 };
 
-export const createInvite = async (req, res) => {
-    try {
-        const classId = req.param.classId;
-        const newLink = new InviteClassLink({
-            class: classId,
-            linkText: classId,
-        });
-        await newLink.save();
-
-        res.status(201).json(newLink);
-    } catch (error) {
-        res.status(404).json({ message: error.message });
-    }
-};
-
 export const createInviteSendMail = async (req, res) => {
     try {
         const inviteLinkId = req.params.inviteLinkId;
@@ -138,13 +127,22 @@ export const createInviteSendMail = async (req, res) => {
     }
 };
 
-export const deleteInvite = async (req, res) => {
-    try {
-        const inviteUserClassId = req.param.inviteUserClassId;
-        await InviteUserClass.findByIdAndDelete(inviteUserClassId);
+export const listInviteUserClassByInviteLinkText = catchAsync( async (req, res, next) => {
+    const inviteLinkText = req.params.inviteLinkText;
+    // check link active
+    const inviteLink = await InviteClassLink.findOne({
+        linkText: inviteLinkText,
+    });
+    if (!inviteLink) throw Error("no found this link");
+    const reps = await InviteUserClass.find({
+        link: inviteLink.id
+    });
+    return sendResponse(reps, 200, res);
+});
 
-        return res.status(201);
-    } catch (error) {
-        return res.status(404).json({ message: error.message });
-    }
-};
+export const deleteInviteUser =  catchAsync( async (req, res, next) => {
+    const inviteUserClassId = req.params.inviteUserClassId;
+    await InviteUserClass.findByIdAndDelete(inviteUserClassId);
+
+    return sendResponse(null, 200, res);
+});
