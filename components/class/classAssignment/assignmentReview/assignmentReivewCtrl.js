@@ -126,7 +126,7 @@ export const createReviewChat = catchAsync( async function(req, res, next) {
         user: req.user._id,
         reviewRequest: rvReq._id,
         content,
-    }).sort('created_at');
+    });
 
     return sendResponse(rvChat, 200, res);
 });
