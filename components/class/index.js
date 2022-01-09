@@ -55,6 +55,8 @@ import {
     getOneAssignmentReviewRequestForStudent,
     getAllReviewRequestsInOneAssignment,
     getOneAssignmentReviewRequest,
+    acceptScoreRequestByStudent,
+    ignoreScoreRequestByStudent,
 
     getReviewChatByReviewRequestId,
     createReviewChat
@@ -115,6 +117,9 @@ router.get('/:classId/review/request/:assignmentId/get-all', checkTeacherClass, 
 router.get('/:classId/review/request/:assignmentId/get-one/:classStudentId', checkTeacherAndStudentInClass, getOneAssignmentReviewRequest);
 router.route('/:classId/review/request/:assignmentId/chat/:reviewRequestId')
     .get(checkTeacherAndStudentInClass, getReviewChatByReviewRequestId)
-    .post(checkTeacherAndStudentInClass, createReviewChat)
+    .post(checkTeacherAndStudentInClass, createReviewChat);
+
+router.put('/:classId/review/request/:assignmentId/accept-score/:classStudentId', checkTeacherClass, acceptScoreRequestByStudent);
+router.put('/:classId/review/request/:assignmentId/ignore-score/:classStudentId', checkTeacherClass, ignoreScoreRequestByStudent);
 
 export default router;

@@ -16,6 +16,9 @@ const reviewRequestSchema = new mongoose.Schema({
     },
     explanation: {
         type: String,
+    },
+    isAccept: {
+        type: Boolean,
     }
 }, {
     timestamps: true,
