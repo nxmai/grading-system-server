@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { userRollEnum } from './userRollEnum.js';
+import { userRollEnum, getEnum } from './userRollEnum.js';
 
 const UserSchema = new mongoose.Schema({
     firstName: {
@@ -24,7 +24,12 @@ const UserSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-    }
+    },
+    role: {
+        type: String,
+        enum: userRollEnum,
+        default: getEnum.USER
+      },
 }, {
     timestamps: true,
     toObject: { virtuals: true },
