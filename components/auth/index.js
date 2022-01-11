@@ -51,9 +51,8 @@ router.post("/login", (req, res) => {
 
     User.find({ email })
         .then(users => {
-            console.log(users);
-            if (users.length == 0) {
-                return res.redirect('/register', { email })
+            if (users.length === 0) {
+                return res.status(303).json({ message: "User doesn't exist" })
             }
             
             if (!comparePw(password, users[0].password)) {
