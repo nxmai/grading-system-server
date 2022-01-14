@@ -1,4 +1,5 @@
 import UserModel from "./userModel.js";
+import { queryToMongo } from "../../utils/queryToMongo.js";
 
 import { hashPw, comparePw } from "../auth/index.js";
 
@@ -69,5 +70,37 @@ export const updatePassword = async (req, res) => {
         return res.status(200).json(user);
     } catch (error) {
         res.status(404).json({ message: error.message });
+    }
+};
+
+export const getUsers = async (req, res) => {
+    try {
+        const users = await UserModel.find();
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+};
+
+export const updateOne = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const data = req.body;
+        const user = await UserModel.findByIdAndUpdate(userId, data);
+        res.status(200).json(user);
+    } catch (error) {
+        return res.status(404).json({ message: error.message });
+    }
+};
+
+export const searchBy = async (req, res) => {
+    try {
+        const {
+            skip, limit, sort, filter,
+          } = queryToMongo({})(request.query);
+          const result = await UserModel.find(filter).sort(sort).skip(skip).limit(limit);
+        return res.status(200).json(result);
+    } catch (error) {
+        return res.status(404).json({ message: error.message });
     }
 };

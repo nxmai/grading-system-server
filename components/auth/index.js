@@ -1,5 +1,7 @@
 import User from '../user/userModel.js';
 import jwt, { decode } from "jsonwebtoken";
+import { userBlackTypeEnum } from "../user/userBlackTypeEnum.js";
+import { getEnum } from "../user/userRollEnum.js";
 import bcrypt from 'bcrypt'
 import express from "express";
 
@@ -78,6 +80,12 @@ export function verifyToken(req, res, next) {
             User.findById(decoded.id)
                 .then(user => {
                     req.user = user
+                    if (user.black_type == userBlackTypeEnum.BLOCK) {
+                        return res.status(404).json({ message: "Your account is blocked" })
+                    }
+                    if (user.black_type == userBlackTypeEnum.BAN) {
+                        return res.status(404).json({ message: "Your account baned"})
+                    }
                     next()
                 })
                 .catch(error => {
@@ -86,6 +94,13 @@ export function verifyToken(req, res, next) {
         }
         else res.status(404).json({ message: "Lost token", error })
     })
+}
+
+export function checkIsAdmin(req, res, next) {
+    if (req.user.role != getEnum.ADMIN) {
+        return res.status(403).json({ message: "Permission denied"})
+    }
+    return next();
 }
 
 function generateAccessToken(user) {

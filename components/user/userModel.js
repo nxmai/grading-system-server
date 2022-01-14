@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { userRollEnum, getEnum } from './userRollEnum.js';
+import { userBlackTypeEnumList, userBlackTypeEnum } from './userBlackTypeEnum.js';
 
 const UserSchema = new mongoose.Schema({
     firstName: {
@@ -29,7 +30,12 @@ const UserSchema = new mongoose.Schema({
         type: String,
         enum: userRollEnum,
         default: getEnum.USER
-      },
+    },
+    black_type: {
+        type: String,
+        enum: userBlackTypeEnumList,
+        default: userBlackTypeEnum.NONE
+    }
 }, {
     timestamps: true,
     toObject: { virtuals: true },
@@ -44,7 +50,7 @@ UserSchema.virtual('inviteClasses', {
             isActive: true,
         }
     }
-  });
+});
 
 const User = mongoose.model('User', UserSchema);
 export default User;
