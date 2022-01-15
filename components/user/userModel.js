@@ -6,8 +6,16 @@ const UserSchema = new mongoose.Schema({
     firstName: {
         type: String,
     },
+    firstName__search: {
+        type: String,
+        select: false,
+    },
     lastName: {
         type: String,
+    },
+    lastName__search: {
+        type: String,
+        select: false,
     },
     studentCardID: {
         type: String,
@@ -39,7 +47,9 @@ const UserSchema = new mongoose.Schema({
 }, {
     timestamps: true,
     toObject: { virtuals: true },
-})
+});
+
+UserSchema.index({ firstName__search: 'text', lastName__search: 'text', email: 'text' });
 
 UserSchema.virtual('inviteClasses', {
     ref: 'InviteUserClass',
@@ -50,6 +60,12 @@ UserSchema.virtual('inviteClasses', {
             isActive: true,
         }
     }
+});
+
+UserSchema.pre('save', async function (next) {
+    if (this.firstName) this.firstName__search = convVie(this.firstName).toLowerCase();
+    if (this.lastName) this.lastName__search = convVie(this.lastName).toLowerCase();
+    return next();
 });
 
 const User = mongoose.model('User', UserSchema);

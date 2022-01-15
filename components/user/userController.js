@@ -73,15 +73,6 @@ export const updatePassword = async (req, res) => {
     }
 };
 
-export const getUsers = async (req, res) => {
-    try {
-        const users = await UserModel.find();
-        res.status(200).json(users);
-    } catch (error) {
-        res.status(404).json({ message: error.message });
-    }
-};
-
 export const updateOne = async (req, res) => {
     try {
         const userId = req.params.userId;
@@ -93,11 +84,11 @@ export const updateOne = async (req, res) => {
     }
 };
 
-export const searchBy = async (req, res) => {
+export const getUsers = async (req, res) => {
     try {
         const {
             skip, limit, sort, filter,
-          } = queryToMongo({})(request.query);
+          } = queryToMongo({})(req.query);
           const result = await UserModel.find(filter).sort(sort).skip(skip).limit(limit);
         return res.status(200).json(result);
     } catch (error) {

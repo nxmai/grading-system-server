@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import morgan from "morgan";
+import AppError from "./utils/appError.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -38,7 +39,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use("/", verifyToken, classesRouter);
-app.use("/user/", verifyToken, userRouter);
+app.use("/user", verifyToken, userRouter);
 app.use("/auth", authRouter);
 
 app.all('*', (request, response, next) => {
