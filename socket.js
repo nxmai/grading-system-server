@@ -38,9 +38,10 @@ if (process.env.NODE_ENV === 'development') {
     }));
 }
 
+app.use("/auth", authRouter);
+
 app.use("/", verifyToken, classesRouter);
 app.use("/user", verifyToken, userRouter);
-app.use("/auth", authRouter);
 
 app.all('*', (request, response, next) => {
     next(new AppError(`Can't find ${request.originalUrl} on this server`, 404));

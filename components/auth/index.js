@@ -4,6 +4,8 @@ import { userBlackTypeEnum } from "../user/userBlackTypeEnum.js";
 import { getEnum } from "../user/userRollEnum.js";
 import bcrypt from 'bcrypt'
 import express from "express";
+import catchAsync from "../../utils/catchAsync.js";
+import AppError from "../../utils/appError.js";
 
 // Google Auth
 import { OAuth2Client } from 'google-auth-library'
@@ -131,34 +133,30 @@ router.post('/confirmation', async (req, res) => {
     });
 });
 
-router.post('/google', (req, res) => {
+router.post('/google', catchAsync(async (req, res, next) => {
     const token = req.body.tokenId
+    if (!token) throw new AppError("token not found", 404);
 
-    async function verify() {
-        const ticket = await client.verifyIdToken({
-            idToken: token,
-            audience: process.env.GOOGLE_CLIENT_ID,
+    const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const { email, given_name, family_name, picture } = payload;
+
+    let user = await User.findOne({ email });
+    if (!user) {
+        user = await User.create({
+            firstName: given_name,
+            lastName: family_name,
+            email,
+            photoUrl: picture
         });
-        const payload = ticket.getPayload();
-        const { email, given_name, family_name, picture } = payload;
-
-        const user = await User.findOne({ email });
-        if (!user) {
-            const newUser = new User({ firstName: given_name, lastName: family_name, email, photoUrl: picture })
-            newUser.save((error, user) => {
-                if (error) {
-                    return res.status(401).json({ message: "Something wrong happen, can't save your account" })
-                }
-                const accessToken = generateAccessToken({ id: user.id });
-                return res.send(accessToken);
-            })
-        } else {
-            const accessToken = generateAccessToken({ id: user.id });
-            return res.send(accessToken);
-        }
     }
-    return verify().catch(console.error);
-})
+
+    const accessToken = generateAccessToken({ id: user.id });
+    return res.send(accessToken);
+}));
 
 router.get('/confirmation/:token', (req, res) => {
     const { token } = req.params;

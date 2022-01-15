@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { userRollEnum, getEnum } from './userRollEnum.js';
 import { userBlackTypeEnumList, userBlackTypeEnum } from './userBlackTypeEnum.js';
+import { convVie } from "../../utils/convVie.js";
 
 const UserSchema = new mongoose.Schema({
     firstName: {
