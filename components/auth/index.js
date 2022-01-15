@@ -1,5 +1,5 @@
 import User from '../user/userModel.js';
-import jwt, { decode } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { userBlackTypeEnum } from "../user/userBlackTypeEnum.js";
 import { getEnum } from "../user/userRollEnum.js";
 import bcrypt from 'bcrypt'
@@ -7,7 +7,8 @@ import express from "express";
 
 // Google Auth
 import { OAuth2Client } from 'google-auth-library'
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+import { sendEmail } from '../../utils/send_email.js';
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const router = express.Router();
 
@@ -23,7 +24,6 @@ export function comparePw(src, hash) {
 
 router.post('/register', (req, res) => {
     const { firstName, lastName, email, password } = req.body
-    
 
     User.find({ email }).then(user => {
         if (user.length == 0) {
@@ -35,8 +35,7 @@ router.post('/register', (req, res) => {
                 if (error) {
                     return res.status(404)
                 }
-                const accessToken = generateAccessToken({ id: user.id });
-                res.send(accessToken)
+                res.send(user);
             })
 
         } else {
@@ -56,7 +55,7 @@ router.post("/login", (req, res) => {
             if (users.length === 0) {
                 return res.status(303).json({ message: "User doesn't exist" })
             }
-            
+
             if (!comparePw(password, users[0].password)) {
                 return res.status(401).json({ message: "Wrong password" })
             }
@@ -107,6 +106,31 @@ function generateAccessToken(user) {
     return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
 }
 
+router.post('/confirmation', async (req, res) => {
+    const { _id, email } = req.body;
+    if (!_id || !email) {
+        return res.status(404).json({ message: "Missing information" });
+    }
+
+    jwt.sign({ id: _id }, process.env.EMAIL_SECRET, async (error, emailToken) => {
+        if (error) {
+            return res.status(404).json({ message: error.message });
+        }
+        const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+        const link = `${clientUrl}/auth/confirmation/${emailToken}`;
+        const message = `Please click the link to confirm your email: ${link}`;
+
+        await sendEmail({
+            email,
+            name: "Alpha Web Team",
+            subject: "Email Confirmation Link",
+            message,
+        });
+
+        return res.status(201).json({ message: "success" });
+    });
+});
+
 router.post('/google', (req, res) => {
     const token = req.body.tokenId
 
@@ -119,31 +143,40 @@ router.post('/google', (req, res) => {
         const { email, given_name, family_name, picture } = payload;
 
         const user = await User.findOne({ email });
-            if (!user) {
-                const newUser = new User({ firstName: given_name, lastName: family_name, email, photoUrl: picture })
-                newUser.save((error, user) => {
-                    if (error) {
-                        return res.status(401).json({ message: "Something wrong happen, can't save your account" })
-                    }
-                    const accessToken = generateAccessToken({ id: user.id });
-                    return res.send(accessToken)
-                })
-            } else {
+        if (!user) {
+            const newUser = new User({ firstName: given_name, lastName: family_name, email, photoUrl: picture })
+            newUser.save((error, user) => {
+                if (error) {
+                    return res.status(401).json({ message: "Something wrong happen, can't save your account" })
+                }
                 const accessToken = generateAccessToken({ id: user.id });
                 return res.send(accessToken);
-            }
+            })
+        } else {
+            const accessToken = generateAccessToken({ id: user.id });
+            return res.send(accessToken);
+        }
     }
-    verify().catch(console.error);
+    return verify().catch(console.error);
 })
 
-// router.get('/access', verifyToken, (req, res) => {
-//     res.json({ message: "Access...", user: req.user })
-// })
+router.get('/confirmation/:token', (req, res) => {
+    const { token } = req.params;
+    if (!token) return res.status(401).json({ message: "Dont found your token" })
 
-// router.get('/users', (req, res) => {
-//     User.find({}).then(users => {
-//         res.json({ users })
-//     })
-// })
+    jwt.verify(token, process.env.EMAIL_SECRET, (error, decoded) => {
+        if (!error) {
+            User.findByIdAndUpdate(decoded.id, { active: true })
+                .then(user => {
+                    const accessToken = generateAccessToken({ id: user._id });
+                    return res.send(accessToken);
+                })
+                .catch(error => {
+                    return res.status(404).json({ message: "This user does no longer exist or already confirmed email.", error })
+                })
+        }
+        else res.status(404).json({ message: "Lost token", error })
+    })
+});
 
 export default router
