@@ -1,5 +1,5 @@
 import express from "express";
-import { createNotification, getNotification, updateNotificationRead } from "./notification/notificationCtrl.js";
+import { createNotification, getNotification, responseToStudentGradeReviewNotification, updateNotificationRead } from "./notification/notificationCtrl.js";
 import { checkIsAdmin } from "../auth/index.js";
 
 const router = express.Router();
@@ -26,6 +26,7 @@ router.post('/all/update/:userId', checkIsAdmin, updateOne);
 // Notification
 router.get('/notification', getNotification);
 router.post('/notification', createNotification);
+router.post('/notification/response-to-student-grade-review', responseToStudentGradeReviewNotification);
 router.post('/notification/read', updateNotificationRead);
 
 export default router;
