@@ -19,6 +19,12 @@ const reviewRequestSchema = new mongoose.Schema({
     },
     isAccept: {
         type: Boolean,
+    },
+    scoreFromTeacher: {
+        type: Number,
+    },
+    replyFromTeacher: {
+        type: String,
     }
 }, {
     timestamps: true,
