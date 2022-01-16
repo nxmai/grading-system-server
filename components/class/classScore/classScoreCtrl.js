@@ -242,11 +242,11 @@ export const markReturnedByAssignmentId = catchAsync( async function(req, res, n
     const classAssignmentId = req.params.assignmentId;
     if (!classAssignmentId) return new AppError('assignment not found', 404);
 
-    await ClassScoreModel.updateMany({
+    const classScore = await ClassScoreModel.find({
         classAssignment: classAssignmentId
-    }, {
-        isReturned: true
-    })
+    });
+    await Promise.all(classScore.map(e => e.returnScore()));
+
     return sendResponse( null, 200, res );
 });
 

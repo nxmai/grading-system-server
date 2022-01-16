@@ -26,5 +26,11 @@ const classScoreSchema = new mongoose.Schema({
     toObject: { virtuals: true },
 });
 
+classScoreSchema.methods.returnScore = async function () {
+    const scoreD = this.scoreDraft;
+    if (!scoreD) return;
+    await this.updateOne({ score: scoreD, scoreDraft: null, isReturned: true });
+};
+
 const classScore = mongoose.model('ClassScore', classScoreSchema);
 export default classScore;

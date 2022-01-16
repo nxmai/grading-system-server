@@ -153,7 +153,11 @@ export const acceptScoreRequestByStudent = catchAsync(async function (
     const StudentNewScore = await ReviewRequestModel.findOne(filter);
 
     const newScore = StudentNewScore.scoreExpectation;
-    const updatedData = { score: newScore, isAccept: true };
+    const updatedData = { score: newScore };
+
+    const updatedAccept = await ReviewRequestModel.findOneAndUpdate(filter, {
+        isAccept: true,
+    });
 
     const updatedScore = await classScore.findOneAndUpdate(filter, updatedData);
 
@@ -176,8 +180,41 @@ export const ignoreScoreRequestByStudent = catchAsync(async function (
         classStudentId: classStudentId,
     };
 
-    const StudentNewScore = await ReviewRequestModel.findOneAndUpdate(filter, {isAccept: false});
+    const StudentNewScore = await ReviewRequestModel.findOneAndUpdate(filter, {
+        isAccept: false,
+    });
 
     return sendResponse(StudentNewScore, 200, res);
 });
 
+export const acceptRequestByNewScoreFromTeacher = catchAsync(async function (
+    req,
+    res,
+    next
+) {
+    const classId = req.classUser.class._id;
+    if (!classId) return new AppError("class not found", 404);
+
+    const classAssignmentId = req.params.assignmentId;
+    const classStudentId = req.params.classStudentId;
+
+    const filter = {
+        classAssignment: classAssignmentId,
+        classStudentId: classStudentId,
+    };
+
+    const newScore = req.body.scoreFromTeacher;
+    const newReply = req.body.replyFromTeacher;
+
+    const updatedAccept = await ReviewRequestModel.findOneAndUpdate(filter, {
+        isAccept: true,
+        replyFromTeacher: newReply,
+        scoreFromTeacher: newScore,
+    });
+
+    const updatedScore = await classScore.findOneAndUpdate(filter, {
+        score: newScore,
+    });
+
+    return sendResponse(updatedScore, 200, res);
+});

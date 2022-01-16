@@ -11,16 +11,15 @@ import {
     updatePassword,
     getUsers,
     updateOne,
-    searchBy,
 } from './userController.js';
+import { convVieSearch } from "../midd/convVieSearch.js";
 
 router.get('/me', getMe);
 router.put('/update/card', updateStudentCardId);
 router.put('/updateMe', updateMe);
 router.put('/updatePassword', updatePassword);
 
-router.get('/search', checkIsAdmin, searchBy);
-router.get('/all', checkIsAdmin, getUsers);
+router.get('/all', checkIsAdmin, convVieSearch, getUsers);
 router.post('/all/update/:userId', checkIsAdmin, updateOne);
 
 // Notification
