@@ -6,6 +6,7 @@ import {
     getClasses, 
     getClassById,
     createClass, 
+    getAllClasses
 } from './classController.js';
 
 import {
@@ -82,6 +83,7 @@ router.put('/:classId/assignment/:id', checkTeacherClass, updateAssignmentById);
 router.delete('/:classId/assignment/:id', checkTeacherClass, deleteAssignmentById);
 
 router.get('/', getClasses);
+router.get('/getall', getAllClasses);
 router.post('/', createClass);
 router.get('/:classId/role', checkJoinedClass, getUserRoleByClassId);
 router.get('/:classId', checkJoinedClass, getClassById);
