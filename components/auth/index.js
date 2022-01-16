@@ -55,6 +55,7 @@ router.post("/login", (req, res) => {
     User.find({ email })
         .then(users => {
             if (users.length === 0) {
+                console.log(users);
                 return res.status(303).json({ message: "User doesn't exist" })
             }
 
@@ -85,7 +86,7 @@ export function verifyToken(req, res, next) {
                         return res.status(404).json({ message: "Your account is blocked" })
                     }
                     if (user.black_type == userBlackTypeEnum.BAN) {
-                        return res.status(404).json({ message: "Your account baned"})
+                        return res.status(404).json({ message: "Your account baned" })
                     }
                     next()
                 })
@@ -99,7 +100,7 @@ export function verifyToken(req, res, next) {
 
 export function checkIsAdmin(req, res, next) {
     if (req.user.role != getEnum.ADMIN) {
-        return res.status(403).json({ message: "Permission denied"})
+        return res.status(403).json({ message: "Permission denied" })
     }
     return next();
 }
@@ -108,30 +109,6 @@ function generateAccessToken(user) {
     return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
 }
 
-router.post('/confirmation', async (req, res) => {
-    const { _id, email } = req.body;
-    if (!_id || !email) {
-        return res.status(404).json({ message: "Missing information" });
-    }
-
-    jwt.sign({ id: _id }, process.env.EMAIL_SECRET, async (error, emailToken) => {
-        if (error) {
-            return res.status(404).json({ message: error.message });
-        }
-        const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
-        const link = `${clientUrl}/auth/confirmation/${emailToken}`;
-        const message = `Please click the link to confirm your email: ${link}`;
-
-        await sendEmail({
-            email,
-            name: "Alpha Web Team",
-            subject: "Email Confirmation Link",
-            message,
-        });
-
-        return res.status(201).json({ message: "success" });
-    });
-});
 
 router.post('/google', catchAsync(async (req, res, next) => {
     const token = req.body.tokenId
@@ -174,6 +151,81 @@ router.get('/confirmation/:token', (req, res) => {
                 })
         }
         else res.status(404).json({ message: "Lost token", error })
+    })
+});
+
+router.post('/confirmation', async (req, res) => {
+    const { _id, email } = req.body;
+    if (!_id || !email) {
+        return res.status(404).json({ message: "Missing information" });
+    }
+
+    jwt.sign({ id: _id }, process.env.EMAIL_SECRET, async (error, emailToken) => {
+        if (error) {
+            return res.status(404).json({ message: error.message });
+        }
+        const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+        const link = `${clientUrl}/auth/confirmation/${emailToken}`;
+        const message = `Please click the link to confirm your email: ${link}`;
+
+        await sendEmail({
+            email,
+            name: "Alpha Web Team",
+            subject: "Email Confirmation Link",
+            message,
+        });
+
+        return res.status(201).json({ message: "success" });
+    });
+});
+
+router.post('/renew-password/send-instruction', async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+        return res.status(404).json({ message: "Missing information" });
+    }
+
+    User.findOne({ email })
+        .then(user => {
+            const renewToken = jwt.sign({ id: user._id }, process.env.PASSWORD_RENEW_SECRET, { expiresIn: '15m' });
+            const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+            const link = `${clientUrl}/auth/forgot-password/${renewToken}`;
+            const message = `Please click the link to renew your password: ${link}`;
+
+            sendEmail({
+                email,
+                name: "Alpha Web Team",
+                subject: "Renew Password Link",
+                message,
+            });
+
+            return res.status(201).json({ message: "success" });
+        })
+        .catch(error => {
+            return res.status(404).json({ message: "This user doesn's exist.", error });
+        })
+});
+
+router.post('/renew-password/:token', (req, res) => {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!token) return res.status(401).json({ message: "Dont found your token" });
+    if (!password) return res.status(401).json({ message: "Dont found your new password" });
+
+    const hash = hashPw(password);
+    jwt.verify(token, process.env.EMAIL_SECRET, (error, decoded) => {
+        if (!error) {
+            User.findByIdAndUpdate(decoded.id, { password: hash })
+                .then(user => {
+                    const accessToken = generateAccessToken({ id: user._id });
+                    return res.send(accessToken);
+                })
+                .catch(error => {
+                    return res.status(404).json({ message: "This user doesn's exist.", error });
+                })
+        }
+        else res.status(404).json(error);
     })
 });
 
