@@ -1,6 +1,8 @@
+
 import Class from "./classModel.js";
 import ClassUser from "./classUser/classUserModel.js";
 import { EnumUserRoll} from "./classUser/userClassRollEnum.js";
+import { queryToMongo } from "../../utils/queryToMongo.js";
 
 export const getClasses = async (req, res) => {
     try {
@@ -52,11 +54,11 @@ export const createClass = async (req, res) => {
 
 export const getAllClasses = async (req, res) => {
     try {
-        const userId = req.user._id;
-        
-        const total = await Class.find();
-
-        res.status(200).json(total);
+        const {
+            skip, limit, sort, filter,
+          } = queryToMongo({})(req.query);
+          const result = await Class.find(filter).sort(sort).skip(skip).limit(limit);
+        return res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
     }

@@ -64,6 +64,9 @@ import {
     createReviewChat
 } from './classAssignment/assignmentReview/assignmentReivewCtrl.js';
 
+import { checkIsAdmin } from "../auth/index.js";
+import { convVieSearch } from "../midd/convVieSearch.js";
+
 // one class has ONLY one link invite
 router.post('/approve/:inviteLink', approveInvite) // approve this usser
 
@@ -83,7 +86,7 @@ router.put('/:classId/assignment/:id', checkTeacherClass, updateAssignmentById);
 router.delete('/:classId/assignment/:id', checkTeacherClass, deleteAssignmentById);
 
 router.get('/', getClasses);
-router.get('/getall', getAllClasses);
+router.get('/getall', checkIsAdmin, convVieSearch, getAllClasses);
 router.post('/', createClass);
 router.get('/:classId/role', checkJoinedClass, getUserRoleByClassId);
 router.get('/:classId', checkJoinedClass, getClassById);
