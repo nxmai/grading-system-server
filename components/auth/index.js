@@ -127,10 +127,10 @@ router.post('/google', catchAsync(async (req, res, next) => {
             firstName: given_name,
             lastName: family_name,
             email,
-            photoUrl: picture
+            photoUrl: picture,
+            active: true
         });
     }
-
     const accessToken = generateAccessToken({ id: user.id });
     return res.send(accessToken);
 }));
@@ -160,13 +160,14 @@ router.post('/confirmation', async (req, res) => {
         return res.status(404).json({ message: "Missing information" });
     }
 
-    jwt.sign({ id: _id }, process.env.EMAIL_SECRET, async (error, emailToken) => {
+    jwt.sign({ id: _id }, process.env.EMAIL_SECRET, { expiresIn: '1h' }, async (error, emailToken) => {
         if (error) {
             return res.status(404).json({ message: error.message });
         }
         const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
         const link = `${clientUrl}/auth/confirmation/${emailToken}`;
-        const message = `Please click the link to confirm your email: ${link}`;
+        const message = `Please click the link to confirm your email: ${link}
+        Note: This link is only valid for 1 hour.`;
 
         await sendEmail({
             email,
@@ -190,7 +191,8 @@ router.post('/renew-password/send-instruction', async (req, res) => {
             const renewToken = jwt.sign({ id: user._id }, process.env.PASSWORD_RENEW_SECRET, { expiresIn: '15m' });
             const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
             const link = `${clientUrl}/auth/forgot-password/${renewToken}`;
-            const message = `Please click the link to renew your password: ${link}`;
+            const message = `Please click the link to renew your password: ${link}
+            Note: This link is only valid for 15 minutes.`;
 
             sendEmail({
                 email,
