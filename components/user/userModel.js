@@ -69,5 +69,21 @@ UserSchema.pre('save', async function (next) {
     return next();
 });
 
+UserSchema.pre(/findOneAndUpdate|updateOne|update/, function (next) {
+    const docUpdate = this.getUpdate();
+    // return if not update search
+    if (!docUpdate) return next();
+    const updateDocs = {};
+    if (docUpdate.firstName) {
+        updateDocs.firstName__search = convVie(docUpdate.firstName).toLowerCase();
+    }
+    if (docUpdate.lastName) {
+        updateDocs.lastName__search = convVie(docUpdate.lastName).toLowerCase();
+    }
+    // update
+    this.findOneAndUpdate({}, updateDocs);
+    return next();
+});
+
 const User = mongoose.model('User', UserSchema);
 export default User;
