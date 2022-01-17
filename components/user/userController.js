@@ -85,6 +85,7 @@ export const getUsers = async (req, res) => {
         const {
             skip, limit, sort, filter,
           } = queryToMongo({})(req.query);
+          console.log(filter);
           const result = await UserModel.find(filter).sort(sort).skip(skip).limit(limit);
         return res.status(200).json(result);
     } catch (error) {
