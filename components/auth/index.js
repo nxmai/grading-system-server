@@ -101,7 +101,7 @@ export function checkIsAdmin(req, res, next) {
 }
 
 export function checkBlock(req, res, next) {
-    if (req.user.black_type != userBlackTypeEnum.BLOCK) {
+    if (req.user.black_type == userBlackTypeEnum.BLOCK) {
         return res.status(403).json({ message: "Permission denied" })
     }
     return next();
