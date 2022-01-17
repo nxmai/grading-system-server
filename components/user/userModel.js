@@ -21,6 +21,9 @@ const UserSchema = new mongoose.Schema({
     studentCardID: {
         type: String,
     },
+    studentCardIDScraft: {
+        type: String,
+    },
     photoUrl: {
         type: String,
     },

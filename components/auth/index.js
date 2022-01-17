@@ -82,9 +82,6 @@ export function verifyToken(req, res, next) {
             User.findById(decoded.id)
                 .then(user => {
                     req.user = user
-                    if (user.black_type == userBlackTypeEnum.BLOCK) {
-                        return res.status(404).json({ message: "Your account is blocked" })
-                    }
                     if (user.black_type == userBlackTypeEnum.BAN) {
                         return res.status(404).json({ message: "Your account baned" })
                     }
@@ -100,6 +97,13 @@ export function verifyToken(req, res, next) {
 
 export function checkIsAdmin(req, res, next) {
     if (req.user.role != getEnum.ADMIN) {
+        return res.status(403).json({ message: "Permission denied" })
+    }
+    return next();
+}
+
+export function checkBlock(req, res, next) {
+    if (req.user.black_type != userBlackTypeEnum.BLOCK) {
         return res.status(403).json({ message: "Permission denied" })
     }
     return next();

@@ -2,6 +2,8 @@ import UserModel from "./userModel.js";
 import { queryToMongo } from "../../utils/queryToMongo.js";
 
 import { hashPw, comparePw } from "../auth/index.js";
+import catchAsync from "../../utils/catchAsync.js";
+import AppError from "../../utils/appError.js";
 
 export const getMe = async (req, res) => {
     try {
@@ -27,30 +29,24 @@ export const updateMe = async (req, res) => {
     }
 };
 
-export const updateStudentCardId = async (req, res) => {
-    try {
-        const userId = req.user._id;
-        const { studentCardId } = req.body;
-        const user = await UserModel.findById(userId);
+export const updateStudentCardId = catchAsync(async (req, res) => {
+    const { studentCardId } = req.body;
+    const checkIsUsed = await UserModel.findOne({
+        studentCardID: studentCardId
+    });
+    if (checkIsUsed) throw new AppError("studentCard is used", 403);
+    const checkIsMapping = await UserModel.findOne({
+        studentCardIDScraft: studentCardId
+    });
+    if (checkIsMapping) throw new AppError("another student is mapped this studentCard", 403);
 
-        const isExist = await UserModel.findOne({
-            studentCardID: studentCardId,
-        });
-        if (!isExist) {
-            const updatedUser = await UserModel.findOneAndUpdate(
-                { _id: userId },
-                { ...user._doc, studentCardID: studentCardId },
-                { new: true }
-            );
-            return res.status(200).json(updatedUser);
-        } else {
-            throw Error("Student card exists");
-        }
-        // return res.status(200).json(user);
-    } catch (error) {
-        res.status(404).json({ message: error.message });
-    }
-};
+    const updated = await UserModel.findByIdAndUpdate(req.user.id,
+    {
+        studentCardID: studentCardId,
+        studentCardIDScraft: "",
+    });
+    return res.status(200).json(updated);
+});
 
 export const updatePassword = async (req, res) => {
     try {

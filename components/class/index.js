@@ -2,6 +2,8 @@ import express from "express";
 const router = express.Router();
 import { checkTeacherClass, checkJoinedClass, checkTeacherAndStudentInClass, checkStudentInClass } from "./classService.js";
 
+import { checkBlock } from "../auth/index.js";
+
 import {
     getClasses, 
     getClassById,
@@ -86,7 +88,7 @@ router.get('/', getClasses);
 router.get('/getall', getAllClasses);
 router.post('/', createClass);
 router.get('/:classId/role', checkJoinedClass, getUserRoleByClassId);
-router.get('/:classId', checkJoinedClass, getClassById);
+router.get('/:classId', checkBlock, checkJoinedClass, getClassById);
 router.get('/:classId/people/teacher', checkJoinedClass, getTeacherOfClass);
 router.get('/:classId/people/student', checkJoinedClass, getStudentOfClass);
 // router.get('/:classId/people/invite', checkTeacherClass, getInviteUserClassByClassId);
