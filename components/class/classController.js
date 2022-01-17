@@ -57,7 +57,6 @@ export const getAllClasses = async (req, res) => {
         const {
             skip, limit, sort, filter,
           } = queryToMongo({})(req.query);
-          console.log(filter);
           const result = await Class.find(filter).sort(sort).skip(skip).limit(limit);
         return res.status(200).json(result);
     } catch (error) {
