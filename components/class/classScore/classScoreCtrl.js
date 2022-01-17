@@ -217,15 +217,26 @@ export const uploadScoreByAssignmentId = catchAsync( async function(req, res, ne
         })
     })
 
+    // await Promise.all(recordsUpdate.map(stuScore => ClassScoreModel.findOneAndUpdate({
+    //     classStudentId: stuScore.classStudentId,
+    //     classAssignment: stuScore.classStudentId
+    // }, {
+    //     score: stuScore.score
+    // }
+    // )));
+
     await ClassScoreModel.bulkWrite(
-        recordsUpdate.map((stuScore) => 
-          ({
+        recordsUpdate.map((stuScore) =>
+        ({
             updateOne: {
-              filter: { classStudentId : stuScore.classStudentId },
-              update: { $set: stuScore },
-              upsert: true
+                filter: {
+                    classStudentId: stuScore.classStudentId,
+                    classAssignment: classAssignmentId
+                },
+                update: { $set: stuScore },
+                upsert: true
             }
-          })
+        })
         )
     );
 
