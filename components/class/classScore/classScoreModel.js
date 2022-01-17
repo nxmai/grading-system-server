@@ -32,5 +32,9 @@ classScoreSchema.methods.returnScore = async function () {
     await this.updateOne({ score: scoreD, scoreDraft: null, isReturned: true });
 };
 
+classScoreSchema.methods.updateScore = async function (scoreD) {
+    await this.updateOne({ score: scoreD, scoreDraft: null, isReturned: true });
+};
+
 const classScore = mongoose.model('ClassScore', classScoreSchema);
 export default classScore;
