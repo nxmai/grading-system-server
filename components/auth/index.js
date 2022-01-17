@@ -70,8 +70,6 @@ router.post("/login", (req, res) => {
 });
 
 export function verifyToken(req, res, next) {
-    // const authPaths = ['/auth/login', '/auth/register', '/auth/google'];
-    // if (authPaths.includes(req.path)) return next();
     if (req.path.includes('/auth/')) return next();
     const bearerHeader = req.headers['authorization']
     const accessToken = bearerHeader && bearerHeader.split(' ')[1]
@@ -83,7 +81,7 @@ export function verifyToken(req, res, next) {
                 .then(user => {
                     req.user = user
                     if (user.black_type == userBlackTypeEnum.BAN) {
-                        return res.status(404).json({ message: "Your account baned" })
+                        return res.status(404).json({ message: "Your account was banned ❌" })
                     }
                     next()
                 })
