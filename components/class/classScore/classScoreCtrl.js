@@ -87,7 +87,7 @@ export const downloadFullScoreByClassId = catchAsync( async function(req, res, n
     })
 
     let data = ['student_id'];
-    data = [...data, ...assignments.map(e=> e.title), 'ava'];
+    data = [...data, ...assignments.map(e=> e.title), 'Final'];
 
     let dataStr = data.join(',') + '\n';
     studentList.forEach(student => {
@@ -233,7 +233,7 @@ export const uploadScoreByAssignmentId = catchAsync( async function(req, res, ne
                     classStudentId: stuScore.classStudentId,
                     classAssignment: classAssignmentId
                 },
-                update: { $set: stuScore },
+                update: { $set: stuScore, scoreDraft: null },
                 upsert: true
             }
         })
