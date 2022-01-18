@@ -156,31 +156,27 @@ router.get('/confirmation/:token', (req, res) => {
     })
 });
 
-router.post('/confirmation', async (req, res) => {
+router.post('/confirmation', catchAsync (async (req, res) => {
     const { _id, email } = req.body;
     if (!_id || !email) {
-        return res.status(404).json({ message: "Missing information" });
+        throw new AppError("Missing information" , 404);
     }
 
-    jwt.sign({ id: _id }, process.env.EMAIL_SECRET, { expiresIn: '1h' }, async (error, emailToken) => {
-        if (error) {
-            return res.status(404).json({ message: error.message });
-        }
-        const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
-        const link = `${clientUrl}/auth/confirmation/${emailToken}`;
-        const message = `Please click the link to confirm your email: ${link}
-        Note: This link is only valid for 1 hour.`;
+    const emailToken = jwt.sign({ id: _id }, process.env.EMAIL_SECRET, { expiresIn: '1h' });
+    const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+    const link = `${clientUrl}/auth/confirmation/${emailToken}`;
+    const message = `Please click the link to confirm your email: ${link}
+    Note: This link is only valid for 1 hour.`;
 
-        await sendEmail({
-            email,
-            name: "Alpha Web Team",
-            subject: "Email Confirmation Link",
-            message,
-        });
-
-        return res.status(201).json({ message: "success" });
+    await sendEmail({
+        email,
+        name: "Alpha Web Team",
+        subject: "Email Confirmation Link",
+        message,
     });
-});
+
+    return res.status(201).json({ message: "success" });
+}));
 
 router.post('/renew-password/send-instruction', async (req, res) => {
     const { email } = req.body;
