@@ -50,17 +50,18 @@ router.post('/register', (req, res) => {
 router.post("/login", (req, res) => {
     const { email, password } = req.body;
 
-    if (!email || !password) return res.status(401).json({ message: "Please provide email & password" })
-
     User.find({ email })
         .then(users => {
             if (users.length === 0) {
-                console.log(users);
                 return res.status(303).json({ message: "User doesn't exist" })
             }
 
             if (!comparePw(password, users[0].password)) {
                 return res.status(401).json({ message: "Wrong password" })
+            }
+
+            if(!users[0].active) {
+                return res.status(401).json({ message: "Your account hasn't been activated" })
             }
 
             const accessToken = generateAccessToken({ id: users[0].id });
@@ -157,25 +158,32 @@ router.get('/confirmation/:token', (req, res) => {
 });
 
 router.post('/confirmation', catchAsync (async (req, res) => {
-    const { _id, email } = req.body;
-    if (!_id || !email) {
+    const { email } = req.body;
+    if (!email) {
         throw new AppError("Missing information" , 404);
     }
 
-    const emailToken = jwt.sign({ id: _id }, process.env.EMAIL_SECRET, { expiresIn: '1h' });
-    const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
-    const link = `${clientUrl}/auth/confirmation/${emailToken}`;
-    const message = `Please click the link to confirm your email: ${link}
-    Note: This link is only valid for 1 hour.`;
+    User.findOne({ email })
+        .then(async user => {
+            const emailToken = jwt.sign({ id: user._id }, process.env.EMAIL_SECRET, { expiresIn: '1h' });
+            const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+            const link = `${clientUrl}/auth/confirmation/${emailToken}`;
+            const message = `Please click the link to confirm your email: ${link}
+            Note: This link is only valid for 1 hour.`;
+        
+            await sendEmail({
+                email,
+                name: "Alpha Web Team",
+                subject: "Email Confirmation Link",
+                message,
+            });
 
-    await sendEmail({
-        email,
-        name: "Alpha Web Team",
-        subject: "Email Confirmation Link",
-        message,
-    });
+            return res.status(201).json({ message: "success" });
+        })
+        .catch(error => {
+            return res.status(404).json({ message: "This user doesn's exist.", error });
+        })
 
-    return res.status(201).json({ message: "success" });
 }));
 
 router.post('/renew-password/send-instruction', async (req, res) => {
